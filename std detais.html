@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCTC Admin Panel</title>
+
+<style>
+*{box-sizing:border-box;transition:.3s}
+body{
+ font-family:Poppins,sans-serif;
+ background:linear-gradient(120deg,#56abca,#0074d9,#00b8ff);
+ background-size:400% 400%;
+ animation:move 20s infinite alternate;
+ color:white;
+ margin:0;
+ padding:30px;
+ min-height:100vh;
+}
+@keyframes move{
+ from{background-position:0%50%}
+ to{background-position:100%50%}
+}
+h1,h2{text-align:center;text-shadow:0 0 15px cyan}
+.container{
+ max-width:500px;
+ margin:40px auto;
+ background:rgba(255,255,255,.15);
+ border:1px solid rgba(255,255,255,.2);
+ backdrop-filter:blur(15px);
+ border-radius:15px;
+ padding:25px;
+}
+input,select{
+ width:100%;
+ padding:10px;
+ margin:8px 0;
+ border-radius:10px;
+ border:none;
+ background:rgba(255,255,255,.2);
+ color:white;
+}
+button{
+ width:100%;
+ padding:10px;
+ border:none;
+ border-radius:10px;
+ background:linear-gradient(90deg,#00bcd4,#0074d9);
+ color:white;
+ font-weight:bold;
+ cursor:pointer;
+ margin-top:5px;
+}
+button:hover{transform:scale(1.05)}
+#dashboard{display:none}
+table{
+ width:100%;
+ border-collapse:collapse;
+ margin-top:20px;
+ background:rgba(255,255,255,.1);
+ border-radius:10px;
+}
+th,td{padding:10px;text-align:center}
+th{background:rgba(0,255,255,.3)}
+tr:nth-child(even){background:rgba(255,255,255,.1)}
+.action-btn{
+ padding:5px 10px;border:none;border-radius:8px;color:white;cursor:pointer;
+}
+.edit{background:#00aaff}
+.delete{background:#ff3b3b}
+#logout{background:linear-gradient(90deg,#ff416c,#ff4b2b)}
+.download-btn{background:linear-gradient(90deg,#28a745,#1e7e34)}
+</style>
+</head>
+
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- LOGIN BOX -->
+<div class="container" id="loginBox">
+    <center><a href="index.html" style="text-decoration:none"><font color="white">HOME</font></a></center>
+  <h1>🧑‍💻 SCTC Admin Login</h1>
+  <input id="user" placeholder="Username">
+  <input id="pass" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <h1>DIPLOMA STUDENT DETAILS</h1>
+
+  <div class="container">
+    <h2>Manage Students</h2>
+
+    <input id="sid" placeholder="Student ID">
+    <input id="sname" placeholder="Full Name">
+    <input id="scourse" placeholder="Course">
+    <input id="semail" placeholder="Email">
+    <input id="sphone" placeholder="Student Phone">
+    <input id="pphone" placeholder="Parent Phone">
+
+    <button onclick="saveStudent()">Save Student</button>
+    <button id="logout" onclick="logout()">Logout</button>
+
+    <h3>Download Student Data</h3>
+    <select id="format">
+      <option value="csv">CSV</option>
+      <option value="xlsx">Excel</option>
+      <option value="pdf">PDF</option>
+      <option value="json">JSON</option>
+    </select>
+    <button class="download-btn" onclick="downloadStudents()">⬇ Download</button>
+  </div>
+
+  <input id="search" placeholder="Search Student...">
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Course</th><th>Email</th>
+        <th>Student</th><th>Parent</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="table"></tbody>
+  </table>
+</div>
+
+<script>
+// ===== FIXED ADMIN LOGIN (Change inside code only) =====
+const ADMIN_USER = "DIPLOMA STUDENTS";
+const ADMIN_PASS = "DIP@STD";
+
+const studentKey="students";
+const sessionKey="adminSession";
+
+// Auto Login
+window.onload=()=>{
+ if(localStorage.getItem(sessionKey)==="true"){
+   loginBox.style.display="none";
+   dashboard.style.display="block";
+   load();
+ }
+};
+
+// Login
+function login(){
+ let u=user.value.trim();
+ let p=pass.value.trim();
+ if(u===ADMIN_USER && p===ADMIN_PASS){
+   localStorage.setItem(sessionKey,"true");
+   loginBox.style.display="none";
+   dashboard.style.display="block";
+   load();
+ }else alert("❌ Wrong Username or Password");
+}
+
+// Logout
+function logout(){
+ localStorage.removeItem(sessionKey);
+ location.reload();
+}
+
+// Save Student
+function saveStudent(){
+ const entry={
+   id:sid.value,
+   name:sname.value,
+   course:scourse.value,
+   email:semail.value,
+   phone:sphone.value,
+   parent:pphone.value
+ };
+ if(Object.values(entry).some(v=>v==="")) return alert("Fill all fields!");
+
+ let data=JSON.parse(localStorage.getItem(studentKey)||"[]");
+ let idx=data.findIndex(s=>s.id===entry.id);
+ if(idx>=0) data[idx]=entry;
+ else data.push(entry);
+
+ localStorage.setItem(studentKey,JSON.stringify(data));
+ clearForm(); load();
+}
+
+// Load Students
+function load(){
+ let data=JSON.parse(localStorage.getItem(studentKey)||"[]");
+ table.innerHTML=data.map((s,i)=>`
+ <tr>
+  <td>${s.id}</td><td>${s.name}</td><td>${s.course}</td>
+  <td>${s.email}</td><td>${s.phone}</td><td>${s.parent}</td>
+  <td>
+    <button class="action-btn edit" onclick="edit(${i})">✏</button>
+    <button class="action-btn delete" onclick="del(${i})">🗑</button>
+  </td>
+ </tr>`).join("");
+}
+
+// Edit
+function edit(i){
+ let s=JSON.parse(localStorage.getItem(studentKey))[i];
+ sid.value=s.id; sname.value=s.name; scourse.value=s.course;
+ semail.value=s.email; sphone.value=s.phone; pphone.value=s.parent;
+}
+
+// Delete
+function del(i){
+ if(!confirm("Delete student?"))return;
+ let data=JSON.parse(localStorage.getItem(studentKey));
+ data.splice(i,1);
+ localStorage.setItem(studentKey,JSON.stringify(data));
+ load();
+}
+
+function clearForm(){
+ sid.value=sname.value=scourse.value=semail.value=sphone.value=pphone.value="";
+}
+
+// Search
+search.onkeyup=()=>{
+ let f=search.value.toLowerCase();
+ document.querySelectorAll("#table tr").forEach(r=>{
+  r.style.display=r.textContent.toLowerCase().includes(f)?"":"none";
+ });
+};
+
+// Download
+function downloadStudents(){
+ let data=JSON.parse(localStorage.getItem(studentKey)||"[]");
+ if(data.length===0)return alert("No Data Available");
+ let format=document.getElementById("format").value;
+
+ if(format==="csv"){
+  let csv="ID,Name,Course,Email,Student,Parent\n";
+  data.forEach(s=>{
+   csv+=`${s.id},${s.name},${s.course},${s.email},${s.phone},${s.parent}\n`;
+  });
+  downloadFile(csv,"Students.csv","text/csv");
+ }
+
+ else if(format==="json"){
+  downloadFile(JSON.stringify(data,null,2),"Students.json","application/json");
+ }
+
+ else if(format==="xlsx"){
+  let ws=XLSX.utils.json_to_sheet(data);
+  let wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"Students");
+  XLSX.writeFile(wb,"Students.xlsx");
+ }
+
+ else if(format==="pdf"){
+  const {jsPDF}=window.jspdf;
+  let pdf=new jsPDF();
+  pdf.text("STUDENT DETAILS",10,10);
+  let y=20;
+  data.forEach((s,i)=>{
+    pdf.text(`${i+1}. ${s.id} | ${s.name} | ${s.course} | ${s.phone}`,10,y);
+    y+=8; if(y>280){pdf.addPage();y=20;}
+  });
+  pdf.save("Students.pdf");
+ }
+}
+
+function downloadFile(content,filename,type){
+ let blob=new Blob([content],{type});
+ let a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download=filename;
+ a.click();
+}
+</script>
+
+</body>
+</html>

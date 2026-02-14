@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SCTC — Lab Manuals (Semester-wise)</title>
+  <style>
+    :root{
+      --bg-1:#071428; 
+      --bg-2:#09293b;
+       --muted:#cfeefc;
+      --accent-start:#00e0ff;
+       --accent-end:#0073ff; 
+       --card-bg:rgba(255,255,255,0.02);
+      --glass:rgba(255,255,255,0.06);
+       --success:#16a34a;
+        --danger:#ef4444;
+    }
+    *
+    {
+      box-sizing:border-box
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial
+    }
+    body{
+      padding:28px;
+      color:var(--muted);
+      background:radial-gradient(1200px 600px at 10% 10%,rgba(0,120,255,0.06),transparent),linear-gradient(135deg,var(--bg-1),var(--bg-2))
+    }
+    .container{
+      max-width:1100px;
+      margin:0 auto
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px
+    }
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center
+    }
+    .logo{
+      width:56px;
+      height:56px;
+      border-radius:12px;
+      background:linear-gradient(135deg,#003b6f,#00bcd4);
+      display:grid;
+      place-items:center;
+      font-weight:800;
+      color:#fff;
+      font-size:1.05rem;
+      box-shadow:0 6px 18px rgba(3,6,23,0.6),inset 0 -6px 18px rgba(255,255,255,0.03)
+    }
+    .title h1{
+      margin:0;
+      font-size:1.15rem
+    }
+    .title p{
+      margin:0;
+      font-size:.82rem;
+      color:rgba(207,238,252,0.9)
+    }
+
+    .header-actions{
+      display:flex;
+      gap:8px;
+      align-items:center
+    }
+    .btn{
+      padding:9px 12px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:700;
+      background:var(--glass);
+      color:var(--muted);
+      backdrop-filter:blur(6px);
+      box-shadow:0 6px 18px rgba(2,6,23,0.35)
+    }
+    .btn.primary{
+      background:linear-gradient(90deg,var(--accent-start),var(--accent-end));
+      color:#001421
+    }
+    .btn.ghost{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06)
+    }
+
+    .card{
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+      border-radius:14px;
+      padding:18px;
+      box-shadow:0 10px 30px rgba(2,6,23,0.55)
+    }
+    .controls{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:14px
+    }
+    .select,.search{
+      display:flex
+      ;align-items:center;
+      gap:8px;
+      background:rgba(255,255,255,0.02);
+      padding:8px;
+      border-radius:10px
+    }
+    select,input{
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      outline:none;
+      font-size:.95rem
+    }
+
+    .upload-area{
+      border-radius:12px;
+      padding:14px;
+      margin-top:12px;
+      border:1px dashed rgba(255,255,255,0.04);
+      background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);
+      display:flex;
+      gap:12px;
+      align-items:center;j
+      ustify-content:space-between;
+      transition:all .18s ease
+    }
+    .upload-area.dragover{
+      border-color:rgba(0,195,255,0.4);
+      transform:translateY(-4px);
+      box-shadow:0 20px 40px rgba(3,9,23,0.6)
+    }
+
+    .grid{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr))
+    }
+    .sem-card{
+      background:var(--card-bg);
+      border-radius:12px;
+      padding:12px;
+      min-height:120px
+    }
+    .list .item{
+      display:flex
+      ;align-items:center;
+      justify-content:space-between;
+      padding:8px;
+      border-radius:10px;
+      margin-bottom:8px;
+      background:rgba(255,255,255,0.02)
+    }
+    .fname{
+      font-weight:700;
+      color:#fff;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:66%
+    }
+    .fsmall{
+      font-size:.78rem;
+      color:rgba(174,232,255,0.9)
+    }
+    .badge{
+      font-size:.75rem;
+      padding:6px 8px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.03)
+    }
+    .small-muted{
+      font-size:.86rem;
+      color:rgba(207,238,252,0.8)
+    }
+    .toast-wrap{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      display:grid;
+      gap:10px;
+      z-index:9999
+    }
+    .toast{
+      background:rgba(0,0,0,0.75);
+      padding:10px 14px;
+      border-radius:10px;
+      color:#fff;
+      box-shadow:0 6px 20px rgba(2,6,23,0.6)
+    }
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.55);
+      display:grid;
+      place-items:center;
+      z-index:1100
+    }
+    .modal{
+      background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));
+      padding:18px;
+      border-radius:12px;
+      min-width:320px;
+      box-shadow:0 10px 30px rgba(2,6,23,0.6)
+    }
+    .hidden{
+      display:none!important
+    }
+    @media (max-width:720px)
+    {
+      .controls{
+        flex-direction:column;
+        align-items:stretch
+      }.
+      upload-area{
+        flex-direction:column;
+        align-items:flex-start
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">DIP</div>
+        <div class="title">
+          <h1>Sri Chaitanya Technical Campus</h1>
+          <p><font size="3px">DIPLOMA LAB MANUALS — Semester-wise (View & Download)</font></p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div id="adminBadge" class="badge hidden" aria-hidden="true">Admin</div>
+        <button id="loginBtn" class="btn primary" aria-expanded="false">Admin Login</button>
+        <a href="index.html"><button class="btn primary">Home</button></a>
+      </div>
+    </header>
+
+    <main class="card" aria-live="polite">
+      <div class="controls" id="controlsWrap">
+        <div class="select hidden" id="adminControls">
+          <label for="semSelect" class="small-muted">Semester</label>
+          <select id="semSelect" aria-label="Select semester">
+            <option value="Sem-1">Sem 1</option>
+            <option value="Sem-2">Sem 2</option>
+            <option value="Sem-3">Sem 3</option>
+            <option value="Sem-4">Sem 4</option>
+            <option value="Sem-5">Sem 5</option>
+          </select>
+        </div>
+
+        <div id="uploadControls" class="hidden">
+          <label class="small-muted">Upload PDFs (admin)</label>
+        </div>
+
+        <div class="search" style="margin-left:auto;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:.85;margin-left:6px" aria-hidden>
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <input id="searchPublic" type="text" placeholder="Search files (students)" aria-label="Search public" />
+        </div>
+      </div>
+
+      <div id="uploadArea" class="upload-area hidden" aria-hidden="true">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M12 3v12" stroke="#9be9ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 7l4-4 4 4" stroke="#9be9ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="14" width="18" height="6" rx="2" stroke="#9be9ff" stroke-width="1.2" />
+          </svg>
+
+          <div>
+            <div style="font-weight:700">Drag &amp; drop PDFs here</div>
+            <div class="small-muted">or <button id="pickFiles" class="btn ghost" style="padding:6px 8px">Browse</button> • Max file size 30 MB</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <div class="small-muted">Selected semester: <span id="uploadSem" style="font-weight:700"></span></div>
+          <div style="display:flex;gap:8px">
+            <button id="uploadBtn" class="btn primary">Upload</button>
+            <button id="cancelUpload" class="btn">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="previewUploads" style="margin-top:12px"></div>
+
+      <p class="small-muted note" style="margin-top:12px">Students may browse and download manuals without logging in. Admin must login to upload or delete files.</p>
+
+      <div id="semGrid" class="grid" style="margin-top:18px"></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <div class="small-muted">Sort:
+          <select id="sortSelect" style="background:transparent;border:none;color:var(--muted)">
+            <option value="new">Newest</option>
+            <option value="old">Oldest</option>
+          </select>
+        </div>
+        <div class="small-muted">Tip: click <strong>Download</strong> to save PDF locally</div>
+      </div>
+    </main>
+
+    <div style="margin-top:16px;text-align:center;color:rgba(207,238,252,0.6)">© Sri Chaitanya Technical Campus | All Rights Reserved</div>
+  </div>
+
+  <input id="fileInputHidden" type="file" accept="application/pdf" multiple style="display:none" />
+
+  <div id="loginModal" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <h3 id="loginTitle" style="margin-top:0">Admin Login</h3>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <input id="adminUser" placeholder="Username" autocomplete="username" />
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="adminPass" placeholder="Password" type="password" autocomplete="current-password" style="flex:1" />
+          <button id="togglePass" class="btn">Show</button>
+        </div>
+        <label style="display:flex;gap:8px;align-items:center;font-size:.9rem">
+          <input id="rememberMe" type="checkbox" /> 
+          Remember me
+        </label>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+          <button id="loginSubmit" class="btn primary">Login</button>
+          <button id="loginClose" class="btn">Cancel</button>
+        </div>
+
+        <p id="loginError" style="color:var(--danger);display:none;margin:0">Invalid username or password.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal">
+      <h3 style="margin-top:0">Confirm Delete</h3>
+      <p class="small-muted">Are you sure you want to permanently delete this file?</p>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button id="confirmNo" class="btn">Cancel</button>
+        <button id="confirmYes" class="btn" style="background:var(--danger);color:#fff">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toasts" aria-live="polite"></div>
+
+  <script>
+  (function(){
+    'use strict';
+
+    // Configuration (do not keep real passwords in public repos)
+    const ADMIN_USERNAME = 'LAB ADMIN';
+    const ADMIN_PASSWORD = 'Dip@Lab';
+
+    // Elements
+    const loginBtn = document.getElementById('loginBtn');
+    const loginModal = document.getElementById('loginModal');
+    const loginSubmit = document.getElementById('loginSubmit');
+    const loginClose = document.getElementById('loginClose');
+    const loginError = document.getElementById('loginError');
+    const togglePass = document.getElementById('togglePass');
+    const adminUser = document.getElementById('adminUser');
+    const adminPass = document.getElementById('adminPass');
+    const rememberMe = document.getElementById('rememberMe');
+
+    const adminBadge = document.getElementById('adminBadge');
+    const adminControls = document.getElementById('adminControls');
+    const uploadControls = document.getElementById('uploadControls');
+    const uploadArea = document.getElementById('uploadArea');
+    const pickFiles = document.getElementById('pickFiles');
+    const fileInputHidden = document.getElementById('fileInputHidden');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const cancelUpload = document.getElementById('cancelUpload');
+    const uploadSem = document.getElementById('uploadSem');
+    const previewUploads = document.getElementById('previewUploads');
+
+    const semGrid = document.getElementById('semGrid');
+    const searchPublic = document.getElementById('searchPublic');
+    const sortSelect = document.getElementById('sortSelect');
+
+    const toasts = document.getElementById('toasts');
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmYes = document.getElementById('confirmYes');
+    const confirmNo = document.getElementById('confirmNo');
+
+    const semSelect = document.getElementById('semSelect');
+
+    // IndexedDB helpers
+    function openDB(){
+      return new Promise((resolve,reject)=>{
+        const req = indexedDB.open('sctc_manuals_v3',1);
+        req.onupgradeneeded = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('manuals')){
+            const os = db.createObjectStore('manuals',{keyPath:'id',autoIncrement:true});
+            os.createIndex('sem','sem',{unique:false});
+            os.createIndex('name','name',{unique:false});
+          }
+        };
+        req.onsuccess = ()=>resolve(req.result);
+        req.onerror = ()=>reject(req.error);
+      });
+    }
+
+    async function addManual(record){
+      const db = await openDB();
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction('manuals','readwrite');
+        const store = tx.objectStore('manuals');
+        const r = store.add(record);
+        r.onsuccess = ()=>{db.close();resolve(r.result)};
+        r.onerror = ()=>{db.close();reject(r.error)};
+      });
+    }
+
+    async function getManualsBySem(sem){
+      const db = await openDB();
+      return new Promise((resolve,reject)=>{
+        const store = db.transaction('manuals','readonly').objectStore('manuals').index('sem');
+        const req = store.getAll(IDBKeyRange.only(sem));
+        req.onsuccess = ()=>{db.close();resolve(req.result)};
+        req.onerror = ()=>{db.close();reject(req.error)};
+      });
+    }
+
+    async function getAllManuals(){
+      const db = await openDB();
+      return new Promise((resolve,reject)=>{
+        const req = db.transaction('manuals','readonly').objectStore('manuals').getAll();
+        req.onsuccess = ()=>{db.close();resolve(req.result)};
+        req.onerror = ()=>{db.close();reject(req.error)};
+      });
+    }
+
+    async function deleteManual(id){
+      const db = await openDB();
+      return new Promise((resolve,reject)=>{
+        const req = db.transaction('manuals','readwrite').objectStore('manuals').delete(id);
+        req.onsuccess = ()=>{db.close();resolve()};
+        req.onerror = ()=>{db.close();reject(req.error)};
+      });
+    }
+
+    // Utilities
+    function toast(msg,timeout=3500){
+      const el = document.createElement('div'); el.className='toast'; el.textContent=msg; toasts.appendChild(el);
+      setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(8px)';setTimeout(()=>el.remove(),300)},timeout);
+    }
+
+    function isAdmin(){return localStorage.getItem('SCTC_ADMIN')==='1'}
+
+    function setAdminState(on){
+      if (on){
+        localStorage.setItem('SCTC_ADMIN','1');
+        adminBadge.classList.remove('hidden'); adminBadge.setAttribute('aria-hidden','false');
+        adminControls.classList.remove('hidden'); uploadControls.classList.remove('hidden'); uploadArea.classList.remove('hidden'); uploadArea.setAttribute('aria-hidden','false');
+        loginBtn.textContent='Logout'; loginBtn.setAttribute('aria-expanded','true');
+        toast('Admin mode enabled');
+      } else {
+        localStorage.removeItem('SCTC_ADMIN'); localStorage.removeItem('SCTC_ADMIN_REMEMBER');
+        adminBadge.classList.add('hidden'); adminBadge.setAttribute('aria-hidden','true');
+        adminControls.classList.add('hidden'); uploadControls.classList.add('hidden'); uploadArea.classList.add('hidden'); uploadArea.setAttribute('aria-hidden','true');
+        loginBtn.textContent='Admin Login'; loginBtn.setAttribute('aria-expanded','false');
+        toast('Logged out');
+      }
+    }
+
+    // Login modal behavior
+    loginBtn.addEventListener('click', ()=>{
+      if (isAdmin()){ setAdminState(false); render(); return; }
+      loginModal.classList.remove('hidden'); loginModal.setAttribute('aria-hidden','false'); adminUser.focus();
+    });
+
+    loginClose.addEventListener('click', ()=>{ loginModal.classList.add('hidden'); loginModal.setAttribute('aria-hidden','true'); loginError.style.display='none'; });
+
+    togglePass.addEventListener('click', ()=>{ if (adminPass.type==='password'){adminPass.type='text';togglePass.textContent='Hide'}else{adminPass.type='password';togglePass.textContent='Show'}});
+
+    function tryLogin(){
+      const u = adminUser.value.trim(); const p = adminPass.value;
+      if (u === ADMIN_USERNAME && p === ADMIN_PASSWORD){
+        setAdminState(true);
+        if (rememberMe.checked) localStorage.setItem('SCTC_ADMIN_REMEMBER','1');
+        loginModal.classList.add('hidden'); loginModal.setAttribute('aria-hidden','true'); adminUser.value=''; adminPass.value=''; loginError.style.display='none';
+        render();
+      } else { loginError.style.display='block'; }
+    }
+
+    loginSubmit.addEventListener('click', tryLogin);
+    // allow Enter to submit when modal is open
+    loginModal.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') tryLogin(); });
+
+    // restore admin state if remembered
+    if (localStorage.getItem('SCTC_ADMIN') === '1' || localStorage.getItem('SCTC_ADMIN_REMEMBER') === '1') setAdminState(true);
+
+    // Upload flow
+    uploadSem.textContent = semSelect.value || '';
+    semSelect.addEventListener('change', ()=> uploadSem.textContent = semSelect.value);
+
+    let stagedFiles = [];
+
+    uploadArea.addEventListener('dragover', (e)=>{ e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', ()=> uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', (e)=>{
+      e.preventDefault(); uploadArea.classList.remove('dragover'); if (!isAdmin()){ toast('Admin only'); return; }
+      const files = Array.from(e.dataTransfer.files || []); handleFiles(files);
+    });
+
+    pickFiles.addEventListener('click', ()=> fileInputHidden.click());
+    fileInputHidden.addEventListener('change', ()=>{ const files = Array.from(fileInputHidden.files || []); handleFiles(files); fileInputHidden.value = ''; });
+
+    function formatBytes(bytes){ if (bytes === 0) return '0 B'; const k = 1024; const sizes = ['B','KB','MB','GB']; const i = Math.floor(Math.log(bytes)/Math.log(k)); return parseFloat((bytes/Math.pow(k,i)).toFixed(2)) + ' ' + sizes[i]; }
+
+    function handleFiles(files){
+      const max = 30 * 1024 * 1024;
+      for (const f of files){
+        if (!f.name.toLowerCase().endsWith('.pdf')){ toast(`Skipped: ${f.name} (not PDF)`); continue; }
+        if (f.size > max){ toast(`Skipped: ${f.name} (${formatBytes(f.size)} > 30 MB)`); continue; }
+        // create a lightweight wrapper so we can attach progress element without modifying original File
+        stagedFiles.push(Object.assign(f, {}));
+      }
+      renderStaged();
+    }
+
+    function renderStaged(){
+      previewUploads.innerHTML = '';
+      if (stagedFiles.length === 0) return;
+      const wrap = document.createElement('div'); wrap.style.display='flex'; wrap.style.flexDirection='column'; wrap.style.gap='8px';
+      stagedFiles.forEach((f,idx)=>{
+        const row = document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.padding='8px'; row.style.borderRadius='8px'; row.style.background='rgba(255,255,255,0.02)';
+        const left = document.createElement('div'); left.style.display='flex'; left.style.flexDirection='column'; left.style.gap='4px';
+        const name = document.createElement('div'); name.textContent=f.name; name.className='fname';
+        const meta = document.createElement('div'); meta.className='fsmall'; meta.textContent=formatBytes(f.size);
+        left.appendChild(name); left.appendChild(meta);
+        const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px'; right.style.alignItems='center';
+        const pbar = document.createElement('div'); pbar.style.width='160px'; pbar.style.height='8px'; pbar.style.background='rgba(255,255,255,0.03)'; pbar.style.borderRadius='8px'; pbar.style.overflow='hidden';
+        const fill = document.createElement('div'); fill.style.width='0%'; fill.style.height='100%'; fill.style.background='linear-gradient(90deg,#34d399,#10b981)'; pbar.appendChild(fill);
+        const remove = document.createElement('button'); remove.className='btn'; remove.textContent='Remove'; remove.addEventListener('click', ()=>{ stagedFiles.splice(idx,1); renderStaged(); });
+        right.appendChild(pbar); right.appendChild(remove);
+        row.appendChild(left); row.appendChild(right); wrap.appendChild(row);
+        f._progressEl = fill; // attach for simulation
+      });
+      previewUploads.appendChild(wrap);
+    }
+
+    uploadBtn.addEventListener('click', async ()=>{
+      if (!isAdmin()){ toast('Admin only'); return; }
+      if (stagedFiles.length === 0){ toast('No files selected'); return; }
+      uploadBtn.disabled = true; uploadBtn.textContent = 'Uploading...';
+      try{
+        for (const f of stagedFiles){
+          await simulateProgress(f._progressEl);
+          // store as Blob in IndexedDB
+          const rec = { sem: semSelect.value, name: f.name, blob: f.slice ? f.slice(0, f.size, f.type) : f, uploadedAt: Date.now() };
+          await addManual(rec);
+        }
+        stagedFiles = []; renderStaged(); toast('Upload complete'); render();
+      }catch(err){ console.error(err); toast('Upload failed'); }
+      finally{ uploadBtn.disabled = false; uploadBtn.textContent = 'Upload'; }
+    });
+
+    function simulateProgress(el){
+      return new Promise(resolve=>{
+        let pct = 0; el.style.width='0%'; const id = setInterval(()=>{ pct += Math.random()*22; if (pct >= 98) pct = 98; el.style.width = pct + '%'; },120);
+        setTimeout(()=>{ clearInterval(id); el.style.width='100%'; setTimeout(resolve,180); },800 + Math.random()*800);
+      });
+    }
+
+    cancelUpload.addEventListener('click', ()=>{ stagedFiles = []; renderStaged(); });
+
+    // Rendering semester grid & search
+    async function render(){
+      semGrid.innerHTML = '';
+      const sems = ['Sem-1','Sem-2','Sem-3','Sem-4','Sem-5'];
+      const q = (searchPublic.value || '').toLowerCase();
+      const sort = sortSelect.value;
+      for (const s of sems){
+        const items = await getManualsBySem(s);
+        const filtered = items.filter(it => !q || it.name.toLowerCase().includes(q));
+        filtered.sort((a,b)=> sort === 'new' ? (b.uploadedAt - a.uploadedAt) : (a.uploadedAt - b.uploadedAt));
+
+        const card = document.createElement('div'); card.className='sem-card';
+        const h3 = document.createElement('h3'); h3.textContent = s; card.appendChild(h3);
+        const list = document.createElement('div'); list.className='list';
+        if (filtered.length === 0){
+          const empty = document.createElement('div'); empty.className='item'; empty.innerHTML = `<div class="fname small-muted">No manuals uploaded</div>`; list.appendChild(empty);
+        } else {
+          filtered.forEach(rec=>{
+            const row = document.createElement('div'); row.className='item';
+            const fileMeta = document.createElement('div'); fileMeta.style.display='flex'; fileMeta.style.flexDirection='column'; fileMeta.style.gap='4px';
+            const name = document.createElement('div'); name.className='fname'; name.textContent = rec.name;
+            const small = document.createElement('div'); small.className='fsmall'; small.textContent = new Date(rec.uploadedAt).toLocaleString();
+            fileMeta.appendChild(name); fileMeta.appendChild(small);
+
+            const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';
+            const dl = document.createElement('button'); dl.className='btn'; dl.textContent='Download';
+            dl.addEventListener('click', ()=> downloadRec(rec)); actions.appendChild(dl);
+
+            if (isAdmin()){ const del = document.createElement('button'); del.className='btn'; del.textContent='Delete'; del.style.background='linear-gradient(90deg,#ff7b7b,#ff4949)'; del.style.color='#fff'; del.addEventListener('click', ()=> showConfirmDelete(rec.id, rec.name)); actions.appendChild(del); }
+
+            row.appendChild(fileMeta); row.appendChild(actions); list.appendChild(row);
+          });
+        }
+        card.appendChild(list); semGrid.appendChild(card);
+      }
+    }
+
+    // Download and delete logic
+    function downloadRec(rec){
+      const blob = rec.blob instanceof Blob ? rec.blob : new Blob([rec.blob], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = rec.name || 'manual.pdf'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
+    }
+
+    let pendingDelete = null;
+    function showConfirmDelete(id,name){ pendingDelete = id; confirmModal.classList.remove('hidden'); confirmModal.setAttribute('aria-hidden','false'); }
+    confirmNo.addEventListener('click', ()=>{ pendingDelete = null; confirmModal.classList.add('hidden'); confirmModal.setAttribute('aria-hidden','true'); });
+    confirmYes.addEventListener('click', async ()=>{ if (pendingDelete !== null){ await deleteManual(pendingDelete); toast('Deleted'); pendingDelete = null; confirmModal.classList.add('hidden'); confirmModal.setAttribute('aria-hidden','true'); render(); } });
+
+    // Wire search / sort and initial load
+    searchPublic.addEventListener('input', ()=> render());
+    sortSelect.addEventListener('change', ()=> render());
+
+    // Initial UI
+    render(); if (isAdmin()) setAdminState(true);
+
+    // Accessibility: close modals with Escape
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape'){
+        if (!loginModal.classList.contains('hidden')){ loginModal.classList.add('hidden'); loginModal.setAttribute('aria-hidden','true'); }
+        if (!confirmModal.classList.contains('hidden')){ confirmModal.classList.add('hidden'); confirmModal.setAttribute('aria-hidden','true'); pendingDelete = null; }
+      }
+    });
+
+  })();
+  </script>
+</body>
+</html>

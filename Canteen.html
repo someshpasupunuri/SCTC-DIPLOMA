@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>SCTC - Diploma Labs</title>
+ 
+<style>
+    /* Reset & Base */
+    * {
+        box-sizing: border-box;
+        scroll-behavior: smooth;
+    }
+    body, html {
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: #e0e6f0;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+    /* Animated Gradient Header Text */
+    header {
+        padding: 50px 15px 40px 15px;
+        font-weight: 700;
+        font-size: 2.8rem;
+        text-align: center;
+        background: transparent;
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        animation: neonGlitch 4s ease-in-out infinite alternate;
+        user-select: none;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        filter: drop-shadow(0 0 10px #00aaff88);
+        max-width: 98vw;
+        margin: 0 auto;
+    }
+    @keyframes neonGlitch {
+        0% {
+            background-image: linear-gradient(45deg, #00FFFF, #00AAFF, #0066AA, #003344);
+            filter: drop-shadow(0 0 12px #00ccffaa);
+        }
+        50% {
+            background-image: linear-gradient(45deg, #c0ffff, #55bbff, #0077cc, #002233);
+            filter: drop-shadow(0 0 15px #33ccffdd);
+        }
+        100% {
+            background-image: linear-gradient(45deg, #00FFFF, #00AAFF, #0066AA, #003344);
+            filter: drop-shadow(0 0 12px #00ccffaa);
+        }
+    }
+    /* Navigation */
+    nav {
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        backdrop-filter: blur(15px);
+        background: rgba(20, 50, 70, 0.5);
+        box-shadow: 0 0 20px rgba(0, 178, 255, 0.4);
+        display: flex;
+        justify-content: center;
+        padding: 15px 0;
+        flex-wrap: wrap;
+    }
+    nav a {
+        color: #00bdffcc;
+        font-weight: 600;
+        font-size: 1.15rem;
+        text-decoration: none;
+        margin: 0 15px;
+        position: relative;
+        padding-bottom: 5px;
+        user-select: none;
+        transition: color 0.3s ease;
+    }
+    nav a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 3px;
+        bottom: 0;
+        left: 50%;
+        background: #00bfffcc;
+        transition: width 0.3s ease, left 0.3s ease;
+        border-radius: 4px;
+    }
+    nav a:hover, nav a:focus {
+        color: #00bfff;
+        outline: none;
+    }
+    nav a:hover::after, nav a:focus::after {
+        width: 100%;
+        left: 0;
+    }
+    /* Container */
+    main {
+        max-width: 1100px;
+        margin: 50px auto 120px auto;
+        padding: 0 25px;
+    }
+    /* Glassmorphic Sections */
+    section {
+        background: rgba(255,255,255,0.06);
+        border-radius: 20px;
+        box-shadow:
+            0 4px 30px rgba(0, 0, 0, 0.4),
+            inset 0 0 60px rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        padding: 40px 50px;
+        margin-bottom: 45px;
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 0.9s cubic-bezier(0.4,0,0.2,1), transform 0.9s cubic-bezier(0.4,0,0.2,1);
+    }
+    section.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    /* Headings */
+    h2 {
+        font-size: 2.1rem;
+        color: #00bfff;
+        margin-bottom: 22px;
+        text-shadow: 0 0 8px #00bfffbb;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+    /* About */
+    #about {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 40px;
+        justify-content: center;
+    }
+    #about img {
+        width: 1000px;
+        height: 500px;
+        border-radius: 20px;
+        box-shadow: 0 0 30px #00bfffcc;
+        object-fit: cover;
+        filter: drop-shadow(0 0 15px #00bfffaa);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    #about img:hover, #about img:focus {
+        transform: scale(1.05) rotate(1deg);
+        outline: none;
+        box-shadow: 0 0 35px #00d4ff;
+    }
+    #about div {
+        flex: 1;
+        min-width: 300px;
+        font-size: 1.2rem;
+        line-height: 1.7;
+        color: #cee6ff;
+        text-shadow: 0 0 8px #008cdbaa;
+    }
+    /* Lists */
+    ul {
+        padding-left: 1.4rem;
+        font-size: 1.18rem;
+        color: #d7ecffcc;
+        list-style: none;
+    }
+    ul li {
+        position: relative;
+        margin: 16px 0;
+        padding-left: 34px;
+        transition: color 0.4s ease;
+        cursor: default;
+    }
+    ul li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        top: 3px;
+        color: #00bfffcc;
+        font-weight: 700;
+        font-size: 1.3rem;
+        text-shadow: 0 0 6px #00bfffcc;
+        transition: color 0.4s ease;
+    }
+    ul li:hover {
+        color: #00d4ff;
+    }
+    ul li:hover::before {
+        color: #00d4ff;
+        text-shadow: 0 0 10px #00d4ff;
+    }
+    /* Form floating labels */
+    form.form-styled {
+        max-width: 480px;
+        margin-top: 15px;
+        position: relative;
+    }
+    .form-group {
+        position: relative;
+        margin-bottom: 30px;
+    }
+    input, textarea, select {
+        width: 100%;
+        background: rgba(255,255,255,0.1);
+        border: none;
+        border-radius: 12px;
+        padding: 18px 20px 16px 20px;
+        color: #e0e6f0;
+        font-size: 1.1rem;
+        outline: none;
+        transition: background 0.25s ease, box-shadow 0.25s ease;
+        resize: vertical;
+        box-shadow: inset 0 0 8px rgba(0,190,255,0.3);
+        font-family: 'Poppins', sans-serif;
+    }
+    input:focus, textarea:focus, select:focus {
+        background: rgba(0,191,255, 0.15);
+        box-shadow: 0 0 18px #00bfff;
+    }
+    label {
+        position: absolute;
+        left: 20px;
+        top: 18px;
+        font-weight: 500;
+        font-size: 1rem;
+        color: #aae3ffcc;
+        pointer-events: none;
+        transition: all 0.25s ease;
+        user-select: none;
+    }
+    input:focus + label,
+    input:not(:placeholder-shown) + label,
+    textarea:focus + label,
+    textarea:not(:placeholder-shown) + label,
+    select:focus + label,
+    select:not([value=""]) + label {
+        top: 4px;
+        font-size: 0.85rem;
+        color: #00bfffcc;
+        font-weight: 700;
+    }
+    /* Buttons Stylish */
+    button {
+        background: linear-gradient(145deg, #00bfff, #005f99);
+        border: none;
+        padding: 16px 40px;
+        border-radius: 30px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: white; 4px 15px rgba(0, 191, 255, 0.6),
+            inset 0 -3px 5px rgba(255,255,255,0.3);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        user-select: none;
+    }
+        cursor: pointer;
+        box-shadow:
+            0
+    button:hover, button:focus {
+        transform: translateY(-3px);
+        box-shadow:
+            0 6px 20px rgba(0, 191, 255, 0.9),
+            inset 0 -4px 6px rgba(255,255,255,0.5);
+        outline: none;
+    }
+    /* Response message */
+    #responseMessage {
+        margin-top: 22px;
+        font-size: 1.18rem;
+        font-weight: 700;
+        min-height: 28px;
+        text-align: center;
+        text-shadow: 0 0 8px #00bfffcc;
+    }
+    /* Table styles */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        color: #d7ecffcc;
+    }
+    th, td {
+        border: 1px solid #00bfff44;
+        padding: 12px 18px;
+        text-align: center;
+        font-size: 1rem;
+        user-select: text;
+    }
+    th {
+        background: rgba(0,191,255,0.25);
+        color: #00d4ff;
+        font-weight: 700;
+        text-shadow: 0 0 5px #00a0ffaa;
+    }
+    tbody tr:hover {
+        background: rgba(0,191,255,0.15);
+    }
+    .pass {
+        color: #22dd22;
+        font-weight: 700;
+        text-shadow: 0 0 5px #22dd2288;
+    }
+    .fail {
+        color: #ff4444;
+        font-weight: 700;
+        text-shadow: 0 0 5px #ff444488;
+    }
+    /* Responsive */
+    @media (max-width: 900px){
+        #about {
+            flex-direction: column;
+            gap: 25px;
+        }
+        #about img {
+            width: 90vw;
+            max-width: none;
+        }
+        nav a {
+            margin: 10px 12px;
+            font-size: 1rem;
+        }
+    }
+    @media (max-width: 480px) {
+        header {
+            font-size: 2.2rem;
+        }
+        section {
+            padding: 30px 25px;
+        }
+        button {
+            width: 100%;
+            padding: 16px;
+        }
+        table, th, td {
+            font-size: 0.85rem;
+        }
+    }
+</style>
+</head>
+<body>
+<header>
+   🍔Canteen🥤
+</header>
+<nav>
+        <a href="index.html" tabindex="0">◀Back</a>
+        
+    </nav>
+
+<main>
+
+<section id="about" class="fade-section">
+        <img src="C:\Users\Jarvi\Downloads\WhatsApp Image 2025-10-24 at 8.56.25 PM.jpeg" tabindex="0" />
+       
+    </section>
+
+
+<section id="about" class="fade-section">
+        <img src="C:\Users\Jarvi\Downloads\WhatsApp Image 2025-10-24 at 8.56.23 PM.jpeg" tabindex="0" height="500" />
+        
+    </section>
+
+
+<section id="about" class="fade-section">
+        <img src="C:\Users\Jarvi\Downloads\WhatsApp Image 2025-10-24 at 8.56.16 PM (1).jpeg" tabindex="0" height="840" width="1332"/>
+        
+    </section>
+
+    
+
+
+<footer>
+    <center>
+    &copy; 2025 Sri Chaitanya Technical Campus. All rights reserved.
+    </center>
+</footer>
+
+<script>
+    // Fade in on scroll
+    const fadeSections = document.querySelectorAll('.fade-section');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+    fadeSections.forEach(section => observer.observe(section));
+
+    // Data Store
+    const students = [];
+    const marks = {};
+
+    // Student Registration Form handler
+    const regForm = document.getElementById('studentRegistrationForm');
+    const regMsg = document.getElementById('registrationMessage');
+    const studentsTableBody = document.querySelector('#studentsTable tbody');
+    const noStudentsMsg = document.getElementById('noStudentsMessage');
+    const studentSelect = document.getElementById('selectStudentID');
+
+    regForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const name = regForm.studentName.value.trim();
+        const id = regForm.studentID.value.trim().toUpperCase();
+        const course = regForm.studentCourse.value;
+        if (students.some(s => s.id === id)) {
+            regMsg.style.color = '#ff5555';
+            regMsg.textContent = 'Student ID already registered.';
+            return;
+        }
+        students.push({id, name, course});
+        regMsg.style.color = '#22dd22';
+        regMsg.textContent = `Student "${name}" registered successfully.`;
+        regForm.reset();
+        updateStudentsTable();
+        updateStudentSelect();
+        updateResultsTable();
+    });
+
+    function updateStudentsTable(){
+        if(students.length === 0){
+            noStudentsMsg.style.display = 'block';
+            studentsTableBody.innerHTML = '';
+        } else {
+            noStudentsMsg.style.display = 'none';
+            studentsTableBody.innerHTML = '';
+            students.forEach(({id, name, course}) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${id}</td><td>${name}</td><td>${course}</td>`;
+                studentsTableBody.appendChild(tr);
+            });
+        }
+    }
+
+    function updateStudentSelect(){
+        // Clear old options except default placeholder
+        while(studentSelect.options.length > 1) {
+            studentSelect.remove(1);
+        }
+        students.forEach(({id}) => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = id;
+            studentSelect.appendChild(option);
+        });
+    }
+
+    // Marks Form handler
+    const marksForm = document.getElementById('marksForm');
+    const marksMsg = document.getElementById('marksMessage');
+
+    marksForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const studentID = marksForm.selectStudentID.value;
+        if (!studentID) {
+            marksMsg.style.color = '#ff5555';
+            marksMsg.textContent = "Select a student ID.";
+            return;
+        }
+        if(!students.some(s => s.id === studentID)){
+            marksMsg.style.color = '#ff5555';
+            marksMsg.textContent = "Invalid student selected.";
+            return;
+        }
+        const maths = Number(marksForm.mathsMarks.value);
+        const physics = Number(marksForm.physicsMarks.value);
+        const chemistry = Number(marksForm.chemistryMarks.value);
+
+        if ([maths, physics, chemistry].some(n => isNaN(n) || n < 0 || n > 100)) {
+            marksMsg.style.color = '#ff5555';
+            marksMsg.textContent = "Marks must be between 0 and 100.";
+            return;
+        }
+
+        marks[studentID] = {maths, physics, chemistry};
+        marksMsg.style.color = '#22dd22';
+        marksMsg.textContent = `Marks saved for Student ID: ${studentID}`;
+        marksForm.reset();
+        updateResultsTable();
+    });
+
+    // Results Table update
+    const resultsTableBody = document.querySelector('#resultsTable tbody');
+    const noResultsMsg = document.getElementById('noResultsMessage');
+
+    function updateResultsTable(){
+        resultsTableBody.innerHTML = '';
+        const studentsWithMarks = students.filter(s => marks[s.id]);
+        if(studentsWithMarks.length === 0){
+            noResultsMsg.style.display = 'block';
+            return;
+        }
+        noResultsMsg.style.display = 'none';
+
+        studentsWithMarks.forEach(({id, name, course}) => {
+            const {maths, physics, chemistry} = marks[id];
+            const total = maths + physics + chemistry;
+            const percentage = ((total / 300) * 100).toFixed(2);
+            const status = (maths >= 35 && physics >= 35 && chemistry >= 35) ? 'Pass' : 'Fail';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${id}</td>
+                <td>${name}</td>
+                <td>${course}</td>
+                <td>${maths}</td>
+                <td>${physics}</td>
+                <td>${chemistry}</td>
+                <td>${total}</td>
+                <td>${percentage}%</td>
+                <td class="${status.toLowerCase()}">${status}</td>
+            `;
+            resultsTableBody.appendChild(tr);
+        });
+    }
+
+    // Contact form (existing)
+    const contactForm = document.getElementById('contactForm');
+    const responseMessage = document.getElementById('responseMessage');
+    contactForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const name = contactForm.name.value.trim();
+        const email = contactForm.email.value.trim();
+        const message = contactForm.message.value.trim();
+
+        if(name.length < 3){
+            setContactResponse('Name must be at least 3 characters.', 'red');
+            contactForm.name.focus();
+            return;
+        }
+        if(!validateEmail(email)){
+            setContactResponse('Please enter a valid email address.', 'red');
+            contactForm.email.focus();
+            return;
+        }
+        if(message.length < 10){
+            setContactResponse('Message must be at least 10 characters.', 'red');
+            contactForm.message.focus();
+            return;
+        }
+
+        setContactResponse(`Thank you, ${name}! Your message has been received.`, '#00ffdd');
+        contactForm.reset();
+    });
+    function setContactResponse(message, color){
+        responseMessage.textContent = message;
+        responseMessage.style.color = color;
+    }
+    function validateEmail(email){
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.toLowerCase());
+    }
+
+</script>
+</body>
+</html>

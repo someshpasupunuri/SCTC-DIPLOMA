@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>College Links Table</title>
+
+<style>
+:root {
+  --bg-gradient: linear-gradient(135deg, #1466b4, #2fa8aa);
+  --card-bg: rgba(255,255,255,0.15);
+  --card-border: rgba(255,255,255,0.3);
+  --text-color: #eaf6ff;
+  --accent: #2a4c5d;
+  --hover-glow: 0 0 20px rgba(13, 62, 87, 0.8);
+  --shadow: 0 10px 25px rgba(0,0,0,0.15);
+  --radius: 16px;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-gradient);
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-x: hidden;
+}
+
+/* Header */
+header {
+  text-align: center;
+  margin: 40px 0 20px;
+}
+header h1 {
+  font-size: 2.4rem;
+  letter-spacing: 1px;
+  text-shadow: 0 0 12px rgba(255,255,255,0.4);
+}
+header p {
+  font-size: 1rem;
+  color: #d9ecff;
+}
+
+/* Container Card */
+.container {
+  background: var(--card-bg);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 1100px;
+  padding: 20px;
+  animation: fadeIn 1s ease;
+}
+
+/* Search + Sort Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+input[type="text"], select {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 10px;
+  padding: 10px 14px;
+  outline: none;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+input[type="text"]:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(0,170,255,0.5);
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #eaf6ff;
+  font-size: 0.95rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+thead {
+  background: rgba(255,255,255,0.15);
+}
+th, td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+th {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8rem;
+  color: #c6e6ff;
+}
+tbody tr {
+  transition: all 0.3s ease;
+}
+tbody tr:hover {
+  background: rgba(255,255,255,0.1);
+  box-shadow: var(--hover-glow);
+  transform: scale(1.01);
+}
+
+/* Buttons */
+.btn {
+  background: linear-gradient(90deg, #0099ff, #00ccff);
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+.btn:hover {
+  background: linear-gradient(90deg, #00ccff, #0099ff);
+  box-shadow: var(--hover-glow);
+  transform: translateY(-2px);
+}
+
+/* Tag badges */
+.tag {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 4px 10px;
+  margin: 2px;
+  font-size: 0.8rem;
+  color: #d9f3ff;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  th {
+    display: none;
+  }
+  td {
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding: 12px;
+  }
+  td::before {
+    content: attr(data-label);
+    display: block;
+    font-weight: bold;
+    color: #9fe3ff;
+  }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1> 🔗Diploma Resource Links</h1>
+  <a href="index.html" style="text-decoration: none;"><font color="white">HOME</font></a>
+</header>
+
+
+<div class="container">
+  <div class="controls">
+    <input type="text" id="search" placeholder="🔍 Search links...">
+    <select id="sort">
+      <option value="name">Sort by Name</option>
+      
+    </select>
+  </div>
+
+  <table id="linksTable">
+    <thead>
+      <tr>
+        <th><font color="blue">Title</font></th>
+        <th><font color="blue">Tags</font></th>
+        <th><font color="blue">Added</font></th>
+        <th><font color="blue">Action</font></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+<br><br>
+<center>
+<footer>
+    &copy; Sri Chaitanya Technical Campus. All rights reserved.
+</footer>
+</center><br>
+<script>
+const links = [
+  { title: "Syllabus", url: "https://www.sbtet.telangana.gov.in/index.html#!/index/ViewSyllabus", tags: ["SYllabus","Copy's"], date: "XX/XX/XXXX" },
+  { title: "Exam Fee Payment", url: "https://www.sbtet.telangana.gov.in/index.html#!/index/DiplomaFeePayment", tags: ["Fee","Payment"], date: "XX/XX/XXXX" },
+  { title: "Hall Ticket Download", url: "https://www.sbtet.telangana.gov.in/index.html#!/index/DiplomaHallticket", tags: ["HT","Download"], date: "XX/XX/XXXX" },
+  { title: "Results", url: "https://www.sbtet.telangana.gov.in/index.html#!/index/DiplomaStudentResult", tags: ["Exam","Results"], date: "XX/XX/XXXX" },
+  { title: "Attendance", url: "https://www.sbtet.telangana.gov.in/index.html#!/index/StudentAttendance", tags: ["Student","Attendance"], date: "XX/XX/XXXX" },
+  { title: "Exam Fee Receipt", url: "https://www.sbtet.telangana.gov.in/index.html#!/index/FeeReciept", tags: ["Fee","Receipt"], date: "XX/XX/XXXX" },
+  { title: "Time Table", url: "https://www.sbtet.telangana.gov.in/index.html#!/index/Timetable", tags: ["Time","Table"], date: "XX/XX/XXXX" },
+];
+
+const tbody = document.querySelector("tbody");
+const search = document.getElementById("search");
+const sort = document.getElementById("sort");
+
+function renderTable(data){
+  tbody.innerHTML = "";
+  data.forEach(link => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td data-label="Title"><strong>${link.title}</strong></td>
+      <td data-label="Tags">${link.tags.map(t => `<span class='tag'>${t}</span>`).join("")}</td>
+      <td data-label="Added">${link.date}</td>
+      <td data-label="Action">
+        <button class="btn" onclick="window.open('${link.url}','_blank')">Open</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterLinks(){
+  let filtered = links.filter(l => 
+    l.title.toLowerCase().includes(search.value.toLowerCase()) ||
+    l.tags.join(" ").toLowerCase().includes(search.value.toLowerCase())
+  );
+  if(sort.value === "name"){
+    filtered.sort((a,b)=> a.title.localeCompare(b.title));
+  } else {
+    filtered.sort((a,b)=> new Date(b.date) - new Date(a.date));
+  }
+  renderTable(filtered);
+}
+
+search.addEventListener("input", filterLinks);
+sort.addEventListener("change", filterLinks);
+
+filterLinks(); // initial render
+</script>
+</body>
+</html>

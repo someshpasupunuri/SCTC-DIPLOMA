@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SCTC — Events Gallery (Admin Upload)</title>
+<style>
+  :root{
+    --bg:#0f2027;
+    --card:#0f2b3a;
+    --accent:#00bfff;
+    --muted:#cfeefc;
+    --glass: rgba(255,255,255,0.04);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: Inter, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: linear-gradient(135deg,var(--bg),#203a43,#2c5364);
+    color:var(--muted);
+    padding:18px;
+  }
+
+  header{
+    max-width:1100px;
+    margin:0 auto 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  h1{margin:0;font-size:1.25rem;color:#fff}
+  .subtitle{font-size:0.85rem;color:#cfeefc;opacity:.9}
+
+  .header-actions{display:flex;gap:8px;align-items:center}
+  button{
+    padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:700;
+  }
+  .primary{background:linear-gradient(90deg,var(--accent),#0090cc);color:#001a20}
+  .danger{background:#ff5b5b;color:white}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+
+  .container{max-width:1100px;margin:0 auto;background:rgba(255,255,255,0.02);padding:16px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+  .hidden{display:none !important}
+
+  /* Upload area (only admin sees) */
+  .upload-area{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:14px;
+  }
+  select,input[type="file"],input[type="text"]{padding:10px;border-radius:8px;border:none;background:var(--glass);color:var(--muted)}
+  label{color:#e6f7ff}
+
+  /* Gallery */
+  .gallery{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:8px}
+  .card{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.5);position:relative}
+  .thumb{width:100%;height:160px;object-fit:cover;background:#000;display:block}
+  .card .meta{padding:10px}
+  .title{font-weight:700;color:#fff;margin:0 0 6px 0;font-size:0.95rem}
+  .info{font-size:0.78rem;color:#bfefff;opacity:.9}
+  .card .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+
+  .btn-small{padding:7px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:700}
+  .btn-view{background:linear-gradient(90deg,#34d399,#10b981);color:#fff}
+  .btn-delete{background:linear-gradient(90deg,#ff7b7b,#ff4949);color:#fff}
+  .btn-download{background:linear-gradient(90deg,#448aff,#1e88ff);color:#fff}
+
+  /* modal viewer */
+  .modal{
+    position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:9999;
+  }
+  .modal-content{max-width:92%;max-height:92%;border-radius:12px;overflow:hidden;background:#000}
+  .modal img,.modal video{width:100%;height:100%;object-fit:contain;display:block}
+  .close-x{position:fixed;right:18px;top:18px;background:#fff;color:#000;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer}
+
+  .top-row{display:flex;gap:12px;align-items:center}
+  .search{margin-left:auto}
+  .note{font-size:0.86rem;color:#cfeefc;margin-top:8px}
+
+  @media(max-width:700px){
+    .thumb{height:140px}
+    header{flex-direction:column;align-items:flex-start;gap:8px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Sri Chaitanya Technical Campus — Events Gallery</h1>
+    <div class="subtitle">Students View & Download media.</div>
+  </div>
+
+  <div class="header-actions">
+    <div id="userLabel" style="font-weight:700;color:#bfefff"></div>
+    <button id="loginBtn" class="primary">Admin Login</button>
+    <a href="index.html"><button class="btn primary">Home</button></a>
+    <button id="logoutBtn" class="danger hidden">Logout</button>
+  </div>
+</header>
+
+<main class="container">
+  <!-- admin upload controls (hidden until admin logged in) -->
+  <div id="uploadSection" class="hidden">
+    <div class="upload-area">
+      <label>Event Title</label>
+      <input id="titleInput" type="text" placeholder="Title for media (optional)">
+
+      <label>Category</label>
+      <select id="categorySelect">
+        <option value="General">General</option>
+        <option value="Seminar">Seminar</option>
+        <option value="Sports">Sports</option>
+        <option value="Cultural">Cultural</option>
+      </select>
+
+      <label>Choose files</label>
+      <input id="fileInput" type="file" accept="image/*,video/*" multiple>
+
+      <button id="uploadBtn" class="primary">Upload</button>
+
+      <div style="margin-left:auto" class="search">
+        <input id="searchInput" type="text" placeholder="Search filenames or titles..." style="padding:10px;border-radius:8px;border:none;background:var(--glass);color:var(--muted)">
+      </div>
+    </div>
+    <div class="note">Admin-only area: upload images (jpg,png) and videos (mp4,webm). Files stored locally in this browser.</div>
+  </div>
+
+  <!-- public search shown when not admin -->
+  <div id="publicSearchBar" class="top-row" style="display:none;margin-bottom:8px">
+    <div style="flex:1"></div>
+    <div class="search">
+      <input id="searchInputPublic" type="text" placeholder="Search filenames or titles..." style="padding:10px;border-radius:8px;border:none;background:var(--glass);color:var(--muted)">
+    </div>
+  </div>
+
+  <!-- gallery -->
+  <section id="gallery" class="gallery" aria-live="polite"></section>
+</main>
+
+<!-- modal viewer -->
+<div id="viewerModal" class="hidden" role="dialog" aria-modal="true">
+  <div class="close-x" id="closeViewer">&times;</div>
+  <div class="modal-content" id="viewerContent"></div>
+</div>
+
+<script>
+/* ========== CONFIG ========== */
+const ADMIN_USERNAME = 'EVENTS ADMIN';
+const ADMIN_PASSWORD = 'Dip@Evt';
+const ADMIN_KEY = 'SCTC_EVENTS_ADMIN_v1';
+
+/* ========== DOM ========== */
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const userLabel = document.getElementById('userLabel');
+
+const uploadSection = document.getElementById('uploadSection');
+const titleInput = document.getElementById('titleInput');
+const categorySelect = document.getElementById('categorySelect');
+const fileInput = document.getElementById('fileInput');
+const uploadBtn = document.getElementById('uploadBtn');
+const searchInput = document.getElementById('searchInput');
+
+const publicSearchBar = document.getElementById('publicSearchBar');
+const searchInputPublic = document.getElementById('searchInputPublic');
+
+const gallery = document.getElementById('gallery');
+
+const viewerModal = document.getElementById('viewerModal');
+const viewerContent = document.getElementById('viewerContent');
+const closeViewer = document.getElementById('closeViewer');
+
+/* ========== IndexedDB helpers ========== */
+function openDB(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('sctc_events_media', 1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains('media')){
+        const os = db.createObjectStore('media', { keyPath: 'id', autoIncrement: true });
+        os.createIndex('type', 'type', { unique: false });
+        os.createIndex('category', 'category', { unique: false });
+        os.createIndex('title', 'title', { unique: false });
+      }
+    };
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+async function addMedia(rec){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('media', 'readwrite');
+    const store = tx.objectStore('media');
+    const req = store.add(rec);
+    req.onsuccess = ()=> { db.close(); resolve(req.result); };
+    req.onerror = ()=> { db.close(); reject(req.error); };
+  });
+}
+
+async function getAllMedia(){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('media','readonly');
+    const store = tx.objectStore('media');
+    const req = store.getAll();
+    req.onsuccess = ()=> { db.close(); resolve(req.result); };
+    req.onerror = ()=> { db.close(); reject(req.error); };
+  });
+}
+
+async function deleteMedia(id){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('media','readwrite');
+    const req = tx.objectStore('media').delete(id);
+    req.onsuccess = ()=> { db.close(); resolve(); };
+    req.onerror = ()=> { db.close(); reject(req.error); };
+  });
+}
+
+/* ========== UI / Auth ========== */
+function showAdminUI(){
+  uploadSection.classList.remove('hidden');
+  loginBtn.classList.add('hidden');
+  logoutBtn.classList.remove('hidden');
+  userLabel.textContent = 'Admin';
+  publicSearchBar.style.display = 'none';
+}
+function hideAdminUI(){
+  uploadSection.classList.add('hidden');
+  loginBtn.classList.remove('hidden');
+  logoutBtn.classList.add('hidden');
+  userLabel.textContent = '';
+  publicSearchBar.style.display = 'flex';
+}
+
+function promptAdminLogin(){
+  const user = prompt('Admin username:');
+  if(user === null) return;
+  const pass = prompt('Admin password:');
+  if(pass === null) return;
+  if(user === ADMIN_USERNAME && pass === ADMIN_PASSWORD){
+    localStorage.setItem(ADMIN_KEY, '1');
+    showAdminUI();
+    renderGallery();
+    alert('Admin logged in');
+  } else {
+    alert('Invalid admin credentials');
+  }
+}
+
+loginBtn.addEventListener('click', promptAdminLogin);
+logoutBtn.addEventListener('click', ()=>{
+  localStorage.removeItem(ADMIN_KEY);
+  hideAdminUI();
+  renderGallery();
+});
+
+/* restore on load */
+if(localStorage.getItem(ADMIN_KEY) === '1') showAdminUI(); else hideAdminUI();
+
+/* ========== Upload handling (admin only) ========== */
+uploadBtn.addEventListener('click', async () => {
+  if(localStorage.getItem(ADMIN_KEY) !== '1'){ alert('Only admin can upload'); return; }
+  const files = Array.from(fileInput.files || []);
+  if(files.length === 0){ alert('Select one or more files'); return; }
+
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = 'Uploading...';
+  try{
+    for(const f of files){
+      const type = f.type.startsWith('image/') ? 'image' : (f.type.startsWith('video/') ? 'video' : 'other');
+      if(type === 'other'){
+        if(!confirm(`"${f.name}" is not an image or video. Skip it?`)) continue;
+        else continue;
+      }
+      const rec = {
+        title: (titleInput.value || f.name).trim(),
+        filename: f.name,
+        type,
+        mime: f.type,
+        category: categorySelect.value,
+        blob: f, // storing File/Blob directly
+        uploadedAt: Date.now()
+      };
+      await addMedia(rec);
+    }
+    fileInput.value = '';
+    titleInput.value = '';
+    alert('Upload complete');
+    await renderGallery();
+  }catch(err){
+    console.error(err);
+    alert('Upload error: ' + (err.message || err));
+  }finally{
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = 'Upload';
+  }
+});
+
+/* ========== Gallery rendering ========== */
+function makeThumbElement(rec){
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card';
+
+  const thumb = document.createElement(rec.type === 'image' ? 'img' : 'video');
+  thumb.className = 'thumb';
+  thumb.src = URL.createObjectURL(rec.blob);
+  if(rec.type === 'video'){
+    thumb.muted = true;
+    thumb.playsInline = true;
+    thumb.loop = true;
+    thumb.preload = 'metadata';
+  }
+
+  thumb.addEventListener('click', (ev)=>{
+    ev.stopPropagation();
+    openViewer(rec);
+  });
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  const title = document.createElement('div'); title.className = 'title'; title.textContent = rec.title || rec.filename;
+  const info = document.createElement('div'); info.className = 'info'; info.textContent = `${rec.category} • ${new Date(rec.uploadedAt).toLocaleString()}`;
+
+  const actions = document.createElement('div'); actions.className = 'actions';
+  const viewBtn = document.createElement('button'); viewBtn.className = 'btn-small btn-view'; viewBtn.textContent = 'View';
+  viewBtn.addEventListener('click', (ev)=>{ ev.stopPropagation(); openViewer(rec); });
+
+  const dl = document.createElement('button'); dl.className = 'btn-small btn-download'; dl.textContent = 'Download';
+  dl.addEventListener('click', (ev)=>{ ev.stopPropagation(); downloadMedia(rec); });
+
+  actions.appendChild(viewBtn);
+  actions.appendChild(dl);
+
+  // show delete only if admin
+  if(localStorage.getItem(ADMIN_KEY) === '1'){
+    const del = document.createElement('button'); del.className = 'btn-small btn-delete'; del.textContent = 'Delete';
+    del.addEventListener('click', async (ev)=>{
+      ev.stopPropagation();
+      if(confirm(`Delete "${rec.title || rec.filename}"?`)){
+        await deleteMedia(rec.id);
+        renderGallery();
+      }
+    });
+    actions.appendChild(del);
+  }
+
+  meta.appendChild(title);
+  meta.appendChild(info);
+  meta.appendChild(actions);
+
+  wrapper.appendChild(thumb);
+  wrapper.appendChild(meta);
+  return wrapper;
+}
+
+async function renderGallery(){
+  gallery.innerHTML = '';
+  const all = await getAllMedia();
+  const q = (searchInput?.value || searchInputPublic?.value || '').toLowerCase().trim();
+
+  const filtered = all.filter(rec => {
+    if(!q) return true;
+    return (rec.title && rec.title.toLowerCase().includes(q)) ||
+           (rec.filename && rec.filename.toLowerCase().includes(q)) ||
+           (rec.category && rec.category.toLowerCase().includes(q));
+  });
+
+  filtered.sort((a,b) => b.uploadedAt - a.uploadedAt);
+
+  if(filtered.length === 0){
+    const p = document.createElement('div');
+    p.style.color = '#bfefff';
+    p.textContent = 'No media found.';
+    gallery.appendChild(p);
+    return;
+  }
+
+  for(const rec of filtered){
+    const card = makeThumbElement(rec);
+    gallery.appendChild(card);
+  }
+}
+
+/* ========== Viewer ========== */
+function openViewer(rec){
+  viewerModal.classList.remove('hidden');
+  viewerContent.innerHTML = '';
+
+  if(rec.type === 'image'){
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(rec.blob);
+    img.alt = rec.title || rec.filename;
+    viewerContent.appendChild(img);
+  } else {
+    const vid = document.createElement('video');
+    vid.src = URL.createObjectURL(rec.blob);
+    vid.controls = true;
+    vid.autoplay = true;
+    viewerContent.appendChild(vid);
+  }
+}
+closeViewer.addEventListener('click', closeViewerFn);
+viewerModal.addEventListener('click', (e) => { if(e.target === viewerModal) closeViewerFn(); });
+function closeViewerFn(){
+  const media = viewerContent.querySelectorAll('img,video');
+  media.forEach(el => { try{ URL.revokeObjectURL(el.src); } catch(e){} });
+  viewerContent.innerHTML = '';
+  viewerModal.classList.add('hidden');
+}
+
+/* ========== Download helper ========== */
+function downloadMedia(rec){
+  const blob = rec.blob instanceof Blob ? rec.blob : new Blob([rec.blob], { type: rec.mime || 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = rec.filename || rec.title || 'download';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+}
+
+/* ========== Search wiring ========== */
+if(searchInput) searchInput.addEventListener('input', renderGallery);
+if(searchInputPublic) searchInputPublic.addEventListener('input', renderGallery);
+
+/* ========== Initial state & render ========== */
+if(localStorage.getItem(ADMIN_KEY) === '1'){
+  showAdminUI();
+} else {
+  hideAdminUI();
+}
+renderGallery();
+</script>
+</body>
+</html>

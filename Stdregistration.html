@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Registration - Sri Chaitanya Technical Campus</title>
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #51a0c0, #2c738b, #2c5364);
+  color: #d7dbdc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+h1 {
+  text-align: center;
+  color: #00bfff;
+  text-shadow: 0 0 15px #00bfff;
+}
+
+/* Security Box */
+#securityBox {
+  background: rgba(255,255,255,0.12);
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(26, 57, 67, 0.4);
+  width: 350px;
+  text-align: center;
+}
+#securityBox input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 10px;
+  background: rgba(223, 221, 221, 0.15);
+  color: #1e1d1d;
+}
+#securityBox button {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(145deg,#00bfff,#0066aa);
+  border: none;
+  border-radius: 8px;
+  margin-top: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+form {
+  background: rgba(255,255,255,0.1);
+  padding: 25px 40px;
+  border-radius: 15px;
+  box-shadow: 0 0 50px rgba(26, 57, 67, 0.3);
+  width: 360px;
+  display: none; /* hidden until code correct */
+}
+label {
+  display: block;
+  margin-top: 12px;
+  color: #a8eaff;
+  font-weight: 600;
+}
+input, select {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 5px;
+  background: rgba(223, 221, 221, 0.15);
+  color: #71777c;
+  font-size: 1rem;
+}
+button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(145deg,#00bfff,#0066aa);
+  border: none;
+  border-radius: 10px;
+  color: rgb(157, 201, 211);
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #00bfff;
+}
+a { color: #00e6ff; }
+</style>
+</head>
+
+<body>
+
+ <h1><font color="white"></font></h1>
+
+<!-- ✅ Security Code Box -->
+<div id="securityBox">
+    <a href="index.html" style="text-decoration:none;">Home</a>
+  <h3>Enter College Code</h3>
+  <input type="password" id="collegeCode" placeholder="Enter Code">
+  <button onclick="checkCode()">Submit</button>
+</div>
+
+<!-- ✅ Registration Form (Hidden Until Correct Code) -->
+ 
+<form id="regForm">
+    <h1><font color="white">Student Registration</font></h1>
+ <center><a href="stdregistration.html" style="text-decoration:none;">◀Back</a></center>
+  <label>Student ID:</label>
+  <input type="text" id="sid" required placeholder="e.g. D23CSE001">
+
+  <label>Name:</label>
+  <input type="text" id="sname" required placeholder="Enter full name">
+
+  <label>Course:</label>
+  <select id="scourse" required>
+    <option value="">--Select Course--</option>
+    <option value="CSE">CSE</option>
+    <option value="ECE">ECE</option>
+    <option value="EEE">EEE</option>
+    <option value="MECH">MECH</option>
+    <option value="CIVIL">CIVIL</option>
+  </select>
+
+  <label>Email:</label>
+  <input type="email" id="semail" required placeholder="example@gmail.com">
+
+  <label>Student Phone:</label>
+  <input type="text" id="sphone" required placeholder="10-digit number">
+
+  <label>Parent Phone:</label>
+  <input type="text" id="pphone" required placeholder="10-digit number">
+
+  <button type="submit">Register</button>
+</form>
+
+<script>
+// ✅ College Code Security
+const correctCode = "CHET@570"; // change code here
+
+function checkCode() {
+  let code = document.getElementById("collegeCode").value;
+  if(code === correctCode) {
+    document.getElementById("securityBox").style.display = "none";
+    document.getElementById("regForm").style.display = "block";
+  } else {
+    alert("❌ Wrong Code! Access Denied.");
+  }
+}
+
+// ✅ Student Registration Script (same as before)
+document.getElementById("regForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  
+  let student = {
+    id: sid.value.trim(),
+    name: sname.value.trim(),
+    course: scourse.value,
+    email: semail.value.trim().toLowerCase(),
+    phone: sphone.value.trim(),
+    parentPhone: pphone.value.trim()
+  };
+
+  if([student.id,student.name,student.course,student.email,student.phone,student.parentPhone].includes("")){
+    alert("⚠️ Fill all fields");
+    return;
+  }
+
+  if(!/^[0-9]{10}$/.test(student.phone) || !/^[0-9]{10}$/.test(student.parentPhone)){
+    alert("⚠️ Enter valid 10-digit phone numbers!");
+    return;
+  }
+
+  let students = JSON.parse(localStorage.getItem("students") || "[]");
+
+  if(students.some(s => s.id.toLowerCase()==student.id.toLowerCase() || s.email==student.email || s.phone==student.phone)){
+    alert("⚠️ Student already registered!");
+    return;
+  }
+
+  students.push(student);
+  localStorage.setItem("students", JSON.stringify(students));
+
+  alert("✅ Student Registered Successfully!");
+  regForm.reset();
+});
+</script>
+
+</body>
+</html>

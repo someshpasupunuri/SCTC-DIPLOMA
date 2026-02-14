@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Faculty Management System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  background:#0d1b2a;
+   color:white; 
+   font-family:Poppins,Arial;
+  text-align:center;
+   padding:20px;
+}
+.page{
+   display:none;
+   }
+
+.form-box{
+  width:350px;
+   margin:auto;
+    padding:25px;
+  background:#1b263b; 
+  border-radius:10px;
+  box-shadow:0 0 10px cyan;
+}
+input,select{
+  width:100%;
+   padding:10px; 
+   margin-top:10px;
+  background:#415a77; 
+  border:none;
+   color:white;
+  border-radius:6px;
+}
+button{
+  width:100%;
+   padding:12px; 
+   margin-top:10px;
+  background:cyan;
+   color:#000;
+    font-weight:bold;
+  border:none; 
+  cursor:pointer; 
+  border-radius:6px;
+}
+button.logout{
+  background:red;
+   color:white;
+  }
+table{
+  width:100%;
+   border-collapse:collapse;
+    margin-top:15px;
+}
+th,td{
+   border:1px solid cyan; 
+   padding:8px; 
+  }
+th{
+   background:cyan;
+    color:black; 
+  }
+input#search{
+   width:60%;
+    padding:10px;
+   }
+.popup{
+  display:none;
+   position:fixed;
+    top:50%;
+     left:50%;
+  transform:translate(-50%,-50%);
+  background:#1b263b;
+   padding:20px;
+  border-radius:10px;
+   box-shadow:0 0 10px cyan;
+  width:320px;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="page" style="display:block;">
+<h2> 🧑‍💻SCTC Admin Login</h2>
+<center><a href="index.html" style="text-decoration: none;"><font color="white">Home</font></a></center><br>
+<div class="form-box">
+  <input id="adminUser" type="text" placeholder="Username">
+  <input id="adminPass" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <p id="msg"></p>
+</div>
+</div>
+
+<!-- FACULTY REGISTER PAGE -->
+<div id="registerPage" class="page">
+<h2>Faculty Registration</h2>
+<div class="form-box">
+<input id="name" placeholder="Faculty Name">
+<input id="email" placeholder="Email">
+<input id="phone" placeholder="Phone">
+<select id="dept">
+  <option value="">Select Department</option>
+  <option>CSE</option><option>ECE</option><option>EEE</option>
+  <option>CIVIL</option><option>MECH</option>
+</select>
+
+<button onclick="saveFaculty()">Register</button>
+<button onclick="showPage('displayPage')">View Faculty List</button>
+<button class="logout" onclick="logout()">Logout</button>
+</div>
+</div>
+
+<!-- DISPLAY FACULTY PAGE -->
+<div id="displayPage" class="page">
+<h2>Faculty Records</h2>
+
+<input type="text" id="search" onkeyup="searchFaculty()" placeholder="Search Faculty...">
+
+<table id="facultyTable">
+<tr>
+<th>Name</th><th>Email</th><th>Phone</th><th>Dept</th><th>Actions</th>
+</tr>
+</table>
+
+<br>
+<button onclick="exportCSV()">Download CSV</button>
+<br><br>
+
+<button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<!-- POPUP EDIT BOX -->
+<div id="popup" class="popup">
+<h3>Edit Faculty</h3>
+<input id="editName" placeholder="Faculty Name">
+<input id="editEmail" placeholder="Email">
+<input id="editPhone" placeholder="Phone">
+<select id="editDept">
+  <option>CSE</option><option>ECE</option><option>EEE</option>
+  <option>CIVIL</option><option>MECH</option>
+</select>
+<button onclick="updateFaculty()">Update</button>
+<button style="background:red;color:white;" onclick="closePopup()">Cancel</button>
+</div>
+
+<script>
+let editIndex = null;
+
+// LOGIN
+function login(){
+ let u = adminUser.value, p = adminPass.value;
+ if(u==="DIPLOMA FACULTY" && p==="Dip@Fac"){
+   localStorage.setItem("admin","true");
+   showPage("registerPage");
+ } else msg.textContent="❌ Wrong Login!";
+}
+
+// SHOW PAGE (with protection)
+function showPage(p){
+ if(!localStorage.getItem("admin")){
+   alert("Access Denied! Admin Only");
+   return location.reload();
+ }
+ document.querySelectorAll(".page").forEach(pg=>pg.style.display="none");
+ document.getElementById(p).style.display="block";
+ if(p==="displayPage") showFaculty();
+}
+
+// LOGOUT
+function logout(){
+ localStorage.removeItem("admin");
+ location.reload();
+}
+
+// SAVE FACULTY
+function saveFaculty(){
+let faculty = {
+ name:name.value, email:email.value, phone:phone.value, dept:dept.value
+};
+if(!faculty.name||!faculty.email||!faculty.phone||!faculty.dept){
+ alert("Fill all fields!"); return;
+}
+let arr = JSON.parse(localStorage.getItem("facultyData"))||[];
+arr.push(faculty);
+localStorage.setItem("facultyData",JSON.stringify(arr));
+alert("✅ Faculty Registered");
+name.value=email.value=phone.value=dept.value="";
+}
+
+// SHOW FACULTY
+function showFaculty(){
+let arr = JSON.parse(localStorage.getItem("facultyData"))||[];
+let table = document.getElementById("facultyTable");
+table.innerHTML="<tr><th>Name</th><th>Email</th><th>Phone</th><th>Dept</th><th>Actions</th></tr>";
+
+arr.forEach((f,i)=>{
+table.innerHTML+=`<tr>
+<td>${f.name}</td><td>${f.email}</td><td>${f.phone}</td><td>${f.dept}</td>
+<td>
+<button onclick="openPopup(${i})">✏ Edit</button>
+<button onclick="del(${i})">🗑 Delete</button>
+</td></tr>`;
+});
+}
+
+// DELETE
+function del(i){
+let arr = JSON.parse(localStorage.getItem("facultyData"));
+arr.splice(i,1);
+localStorage.setItem("facultyData",JSON.stringify(arr));
+showFaculty();
+}
+
+// OPEN POPUP (EDIT)
+function openPopup(i){
+editIndex = i;
+let arr = JSON.parse(localStorage.getItem("facultyData"));
+let f = arr[i];
+editName.value=f.name;
+editEmail.value=f.email;
+editPhone.value=f.phone;
+editDept.value=f.dept;
+popup.style.display="block";
+}
+
+// UPDATE FACULTY
+function updateFaculty(){
+let arr = JSON.parse(localStorage.getItem("facultyData"));
+arr[editIndex]={ name:editName.value, email:editEmail.value, phone:editPhone.value, dept:editDept.value };
+localStorage.setItem("facultyData",JSON.stringify(arr));
+popup.style.display="none";
+showFaculty();
+}
+
+// CLOSE POPUP
+function closePopup(){ popup.style.display="none"; }
+
+// SEARCH
+function searchFaculty(){
+let value = search.value.toLowerCase();
+[...facultyTable.rows].forEach((row,i)=>{
+ if(i===0) return;
+ row.style.display=row.innerText.toLowerCase().includes(value)?"":"none";
+});
+}
+
+// EXPORT CSV
+function exportCSV(){
+let arr = JSON.parse(localStorage.getItem("facultyData"))||[];
+let csv="Name,Email,Phone,Dept\n";
+arr.forEach(f=>csv+=`${f.name},${f.email},${f.phone},${f.dept}\n`);
+let a=document.createElement("a");
+a.href="data:text/csv;charset=utf-8,"+encodeURI(csv);
+a.download="faculty_data.csv"; a.click();
+}
+</script>
+</body>
+</html>

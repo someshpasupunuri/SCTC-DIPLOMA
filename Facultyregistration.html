@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faculty Registration</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #0f2027;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Security Code Box */
+#securityBox {
+  background: rgba(255,255,255,0.1);
+  padding: 30px;
+  border-radius: 10px;
+  width: 320px;
+  box-shadow: 0 0 10px cyan;
+  text-align: center;
+}
+#securityBox input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  border: none;
+  background: rgba(248,248,249,0.7);
+}
+#securityBox button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background: cyan;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+#securityBox button:hover { background: #00eaff; }
+
+/* Registration Form */
+form {
+  background: rgba(255,255,255,0.1);
+  padding: 25px;
+  border-radius: 10px;
+  width: 350px;
+  box-shadow: 0 0 10px cyan;
+  display: none; /* hidden until code verified */
+}
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 5px;
+  background: rgba(248,248,249,0.7);
+  color: #333;
+}
+button {
+  margin-top: 15px;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  background: cyan;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+}
+button:hover {
+  background: #00eaff;
+}
+a { color: yellow; display: block; margin-top: 10px; text-align:center; }
+</style>
+</head>
+<body>
+
+<!-- ✅ Security Box -->
+<div id="securityBox">
+    <center><h2><font size="5px"></font></h2></center>
+  <h2><font size="3px">Enter College Code</font></h2>
+  
+  <input type="password" id="collegeCode" placeholder="Enter Code">
+  <button onclick="checkCode()">Submit</button>
+  <center><a href="index.html" style="text-decoration: none;"><font color="white">Home</font></a></center>
+</div>
+
+<!-- ✅ Faculty Registration Form -->
+<form id="facultyForm">
+<center><h2>Faculty Registration</h2></center>
+<a href="facultyregistration.html" style="text-decoration: none;"><font color="skyblue">◀Back</font></a>
+
+<input type="text" id="name" placeholder="Enter Faculty Name" required>
+<input type="email" id="email" placeholder="Enter Email" required>
+<input type="text" id="phone" placeholder="Enter Phone Number" required>
+
+<select id="dept" required>
+  <option value="">Select Department</option>
+  <option>CSE</option>
+  <option>ECE</option>
+  <option>EEE</option>
+  <option>MECH</option>
+  <option>CIVIL</option>
+</select>
+
+<button type="submit">Register As Faculty</button>
+</form>
+
+<script>
+// ✅ Security Code
+const correctCode = "CHET@570"; 
+
+function checkCode(){
+  let code = document.getElementById("collegeCode").value;
+  
+  if(code === correctCode){
+    document.getElementById("securityBox").style.display = "none";
+    document.getElementById("facultyForm").style.display = "block";
+  } else {
+    alert("❌ Incorrect Code! Access Denied.");
+  }
+}
+
+// ✅ Faculty Registration with duplicate check
+document.getElementById("facultyForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  let name = document.getElementById("name").value;
+  let email = document.getElementById("email").value;
+  let phone = document.getElementById("phone").value;
+  let dept = document.getElementById("dept").value;
+
+  let stored = JSON.parse(localStorage.getItem("facultyData")) || [];
+
+  let exists = stored.some(f => f.email === email || f.phone === phone);
+
+  if (exists) {
+    alert("⚠️ Faculty already exists with this Email or Phone!");
+    return;
+  }
+
+  let faculty = { name, email, phone, dept };
+  stored.push(faculty);
+  localStorage.setItem("facultyData", JSON.stringify(stored));
+
+  alert("✅ Faculty Registered Successfully!");
+  this.reset();
+});
+</script>
+
+</body>
+</html>

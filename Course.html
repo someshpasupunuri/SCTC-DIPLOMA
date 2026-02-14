@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 50px 20px;
+    }
+
+    .container {
+      max-width: 980px;
+      width: 100%;
+      background: rgba(15, 15, 15, 0.85);
+      border-radius: 20px;
+      backdrop-filter: blur(16px);
+      padding: 48px 40px;
+      box-shadow:
+        0 0 60px rgba(10, 200, 38, 0.3),
+        0 0 60px rgba(0, 191, 255, 0.2);
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 3.0rem;
+      text-align: center;
+      color: #e1e4ec;
+      text-shadow: 0 0 10px #2bb0e1;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-weight: 500;
+      font-size: 1.3rem;
+      color: #8ec5fc;
+      margin-bottom: 44px;
+    }
+
+    .course-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
+      gap: 36px;
+      list-style: none;
+      padding: 0;
+    }
+
+    .course-item {
+      background: rgba(30, 30, 30, 0.75);
+      border-radius: 18px;
+      border: 2px solid transparent;
+      padding: 32px 28px 36px 28px;
+      box-shadow:
+        inset 0 0 8px #3184d2,
+        0 6px 25px rgba(87, 158, 220, 0.3);
+      transition: 0.3s ease border-color, transform 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .course-item::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, #55a981, #00ffd5, #00aaff, #ff005e);
+      background-size: 300% 300%;
+      filter: blur(18px);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      border-radius: 18px;
+      z-index: 0;
+      animation: gradientShift 8s linear infinite;
+    }
+    .course-item:hover::before {
+      opacity: 1;
+    }
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .course-item:hover {
+      transform: translateY(-10px);
+      border-color: #00ffd5;
+      box-shadow:
+        inset 0 0 10px #00ffd5,
+        0 15px 40px rgba(0, 255, 213, 0.5);
+      z-index: 1;
+    }
+
+    .course-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+      z-index: 2;
+      position: relative;
+    }
+    .course-icon svg {
+      width: 52px;
+      height: 52px;
+      fill: #ff005e;
+      filter: drop-shadow(0 0 4px #ff005e);
+      transition: fill 0.3s ease;
+    }
+    .course-item:hover .course-icon svg {
+      fill: #00ffd5;
+      filter: drop-shadow(0 0 8px #00ffd5);
+    }
+
+    .course-title {
+      font-weight: 600;
+      font-size: 1.4rem;
+      text-align: center;
+      color: #ffffff;
+      margin-bottom: 8px;
+      text-shadow: 0 0 6px rgba(0,0,0,0.6);
+      z-index: 2;
+      position: relative;
+    }
+
+    .course-details {
+      font-size: 1rem;
+      color: #a0eaff;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      text-align: center;
+      z-index: 2;
+      position: relative;
+    }
+
+    .apply-btn {
+      display: block;
+      width: 160px;
+      margin: 20px auto 0;
+      padding: 12px 0;
+      text-align: center;
+      background: linear-gradient(90deg, #ff005e, #00ffd5);
+      color: #111;
+      font-weight: 700;
+      letter-spacing: 1.1px;
+      border-radius: 30px;
+      text-transform: uppercase;
+      font-size: 1.1rem;
+      box-shadow: 0 0 14px #ff005e, 0 0 24px #00ffd5;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      z-index: 2;
+      position: relative;
+      text-decoration: none;
+    }
+    .apply-btn:hover {
+      background: linear-gradient(90deg, #00ffd5, #ff005e);
+      box-shadow: 0 0 18px #00ffd5, 0 0 30px #ff005e;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 680px) {
+      .container {
+        padding: 30px 20px;
+      }
+      h1 {
+        font-size: 2.6rem;
+      }
+      .subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+      }
+      .course-list {
+        gap: 28px;
+        grid-template-columns: 1fr;
+      }
+      .apply-btn {
+        width: 100%;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+
+<body>
+  <div class="container">
+
+
+    <h1>Diploma Courses</h1>
+    
+    <div class="subtitle">Explore career-focused diploma programs with hands-on training and excellent placement opportunities.</div>
+  
+    <ul class="course-list">
+      <li class="course-item" tabindex="0">
+        <div class="course-icon" aria-hidden="true">
+        </div>
+        <div class="course-title">Diploma in Computer Science (CSE)</div>
+        <div class="course-details">Duration: 3 Years &nbsp;|&nbsp; Eligibility: 10th Pass</div>
+        <div class="course-details">A 3-year technical diploma focused on computer programming, software development, networking,
+           databases, and modern technologies. It prepares students for IT and software-related careers.<br><br>
+
+<u><font color="white">📘 What You Learn</font></u><br>
+
+Programming languages (C, C++, Java, Python)<br>
+
+Data Structures<br>
+
+Web development (HTML, CSS, JS, PHP)<br>
+
+Database Management (SQL, RDBMS)<br>
+
+Computer Networks<br>
+
+Operating Systems<br>
+
+Software Engineering<br>
+
+Cyber Security basics<br>
+
+Cloud & AI basics (in updated syllabus)</div>
+      </li>
+
+      <li class="course-item" tabindex="0">
+        <div class="course-icon" aria-hidden="true">
+        </div>
+        <div class="course-title">Diploma in Electronics & Communication (ECE)</div>
+        <div class="course-details">Duration: 3 Years &nbsp;|&nbsp; Eligibility: 10th Pass</div>
+        <div class="course-details">A 3-year diploma that focuses on electronics, communication systems, circuits, and modern digital
+           technology. It teaches how electronic devices work and how communication systems (mobile, TV, internet) are designed.<br><br>
+
+<u><font color="white">📘 What You Learn</font></u><br>
+
+<align="left">Electronic devices & circuits<br>
+
+Digital electronics<br>
+
+Communication systems (analog & digital)<br>
+
+Microprocessors & microcontrollers<br>
+
+Embedded systems basics<br>
+
+Networking & signal processing<br>
+
+Consumer electronics<br>
+
+PCB design basics</align></div>
+      </li>
+
+      <li class="course-item" tabindex="0">
+        <div class="course-icon" aria-hidden="true">
+          </div>
+        <div class="course-title">Diploma in Mechanical Engineering (ME)</div>
+        <div class="course-details">Duration: 3 Years &nbsp;|&nbsp; Eligibility: 10th Pass</div>
+        <div class="course-details">A 3-year technical diploma that focuses on machines, manufacturing, designing, and maintenance.
+           It deals with how machines work and how industries produce goods.<br><br>
+
+           <u><font color="white">📘 What You Learn</font></u><br>
+
+           Engineering drawing & drafting<br>
+
+           Material science<br>
+
+           Thermodynamics<br>
+ 
+           Fluid mechanics<br>
+
+           Strength of materials<br>
+
+           Manufacturing technology (lathe, milling, welding, CNC)<br>
+
+           Machine design<br>
+
+           Automobile engineering basics<br>
+
+           CAD/CAM software</div>
+      </li>
+
+      <li class="course-item" tabindex="0">
+        <div class="course-icon" aria-hidden="true">
+          </div>
+        <div class="course-title">Diploma in Civil Engineering (CE)</div>
+        <div class="course-details">Duration: 3 Years &nbsp;|&nbsp; Eligibility: 10th Pass</div>
+        <div class="course-details">A 3-year course focused on the construction, design, and maintenance of buildings, roads, bridges,
+           and other infrastructure.<br><br>
+
+       <u><font color="white">📘What You Learn</font></u><br>
+
+       Building construction<br>
+
+       Surveying<br>
+
+       Engineering drawing<br>
+
+       Concrete & structural basics<br>
+
+       Estimation & costing<br>
+
+       CAD software (AutoCAD)</div>
+      </li>
+
+      <li class="course-item" tabindex="0">
+        <div class="course-icon" aria-hidden="true">
+          </div>
+        <div class="course-title">Diploma in Electrical And Electronics Engineering (EEE)</div>
+        <div class="course-details">Duration: 3 Years &nbsp;|&nbsp; Eligibility: 10th Pass</div>
+        <div class="course-details">A 3-year technical course that teaches the fundamentals of electricity, electronics,
+           power systems, and electrical machines. Students learn both theory and practical skills needed for electrical and
+            electronics industries.<br><br>
+          <u><font color="white">📘What You Learn</font></u><br>
+        
+         Electrical circuits & wiring<br>
+
+         Electronic devices & circuits<br>
+ 
+         Electrical machines (motors, transformers)<br>
+
+         Power systems & power electronics<br>
+
+         Digital electronics & control systems</div>
+      </li>
+
+    </ul><br><br>
+    <center><a href="index.html" style="text-decoration: none;"><font color="white">HOME</font></a></center><br><br>
+    <center>© Sri Chaitanya Technical Campus. All rights reserved.</center>
+  </div>
+ 
+</body>
+</html>

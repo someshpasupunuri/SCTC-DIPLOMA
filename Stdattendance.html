@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SCTC — Photo Gallery (Admin upload)</title>
+<style>
+  :root{
+    --bg:#071428;
+     --card:#0f1724;
+      --muted:#cfeefc;
+       --accent:#00bcd4;
+    --success:#16a34a;
+     --danger:#ef4444;
+  }
+  *{
+    box-sizing:border-box
+  }
+  body{
+    margin:0;
+     min-height:100vh;
+      font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+    background:linear-gradient(180deg,var(--bg),#0b1220); 
+    color:var(--muted); 
+    padding:22px;
+  }
+  .wrap{
+    max-width:1100px;
+    margin:0 auto}
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px
+  }
+  .brand{
+    display:flex;
+    gap:12px;
+    align-items:center
+  }
+  .logo{
+    width:48px;
+    height:48px;
+    border-radius:8px;
+    background:linear-gradient(135deg,#003b6f,#00bcd4);
+    display:grid;
+    place-items:center;
+    font-weight:800;
+    color:#fff
+  }
+  h1{
+    margin:0;
+    font-size:1.1rem
+  }
+  .controls{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap
+  }
+
+  /* Buttons */
+  .btn{
+    padding:8px 10px;
+    border-radius:8px;
+    border:0;
+    background:rgba(255,255,255,0.04);
+    color:var(--muted);
+    cursor:pointer
+  
+  }
+  .btn.primary{
+    background:linear-gradient(90deg,var(--accent),#0073ff);
+    color:#001821;
+    font-weight:700
+  }
+  .btn.ghost{
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.06)
+  }
+
+  /* Card */
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px;
+    padding:14px;
+    margin-top:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.5)
+  }
+
+  /* Upload area (admin only) */
+  .upload-area{
+    margin-top:12px;
+    border:2px dashed rgba(255,255,255,0.04);
+    padding:12px;
+    border-radius:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px
+  }
+  .upload-area.dragover{
+    border-color:rgba(0,195,255,0.4);
+    box-shadow:0 14px 30px rgba(0,0,0,0.5)
+  }
+
+  /* Gallery grid */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;
+    margin-top:12px
+  }
+  .tile{
+    background:rgba(255,255,255,0.02);
+    border-radius:8px;
+    padding:8px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    position:relative;
+    overflow:hidden
+  }
+  .thumb{
+    width:100%;
+    height:140px;
+    object-fit:cover;
+    border-radius:6px;
+    background:#071927
+  }
+  .title{
+    font-weight:700;
+    font-size:.95rem;
+    text-align:center;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    width:100%
+  }
+  .meta{
+    font-size:.8rem;
+    color:rgba(207,238,252,0.7)
+  }
+
+  /* admin delete badge on tile */
+  .delete-badge{
+    position:absolute;
+    right:8px;
+    top:8px;
+    background:var(--danger);
+    color:#fff;
+    padding:6px 8px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    font-weight:700;
+    display:none
+  }
+  .tile.admin .delete-badge{
+    display:block
+  }
+
+  /* image viewer modal */
+  .modal-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    display:grid;
+    place-items:center;
+    z-index:1100;
+    padding:20px
+  }
+  .viewer{
+    max-width:1000px;
+    width:100%;
+    background:#0b1220;
+    padding:12px;
+    border-radius:10px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start
+  }
+  .viewer-img{
+    max-width:640px;
+    max-height:80vh;
+    object-fit:contain;
+    border-radius:6px
+  }
+  .viewer-meta{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:8px
+  }
+
+  .hidden{
+    display:none !important
+  }
+  footer{
+    text-align:center;
+    margin-top:18px;
+    color:rgba(207,238,252,0.6);
+    font-size:.9rem
+  }
+
+  @media (max-width:720px){
+    .viewer{
+      flex-direction:column;
+      align-items:center
+    }
+    .viewer-img{
+      max-width:100%;
+      max-height:60vh
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">DIP</div>
+        <div>
+          <h1>DIPLOMA — ATTENDANCE</h1>
+          <div style="color:rgba(207,238,252,0.8);font-size:.86rem"><font size="3px">View and Download Your Attendance</font></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div id="adminBadge" class="btn ghost hidden">Admin</div>
+        <button id="loginBtn" class="btn primary">Admin Login</button>
+        <a href="index.html"><button class="btn primary">Home</button></a>
+        <button id="logoutBtn" class="btn hidden">Logout</button>
+      </div>
+      
+    </header>
+
+    <section class="card">
+      <!-- admin upload controls -->
+      <div id="adminPanel" class="hidden">
+        <div class="upload-area" id="uploadArea">
+          <div>
+            <div style="font-weight:700">Drag & drop images here</div>
+            <div style="font-size:.86rem;color:rgba(207,238,252,0.8)">or <label for="filePick" class="btn ghost" style="display:inline-block;cursor:pointer">Browse</label> • PNG/JPG/GIF allowed</div>
+            <input id="filePick" type="file" accept="image/*" multiple class="hidden" />
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="photoName" placeholder="Optional title (visible below image)" style="padding:8px;border-radius:8px;border:0;background:rgba(255,255,255,0.03);color:var(--muted)" />
+            <button id="uploadBtn" class="btn primary">Upload</button>
+          </div>
+        </div>
+
+        <div style="margin-top:8px;color:rgba(207,238,252,0.75);font-size:.9rem">Uploads are stored locally in your browser (IndexedDB). Delete is admin-only.</div>
+      </div>
+
+      <!-- public gallery controls -->
+      <div style="display:flex;gap:8px;align-items:center;margin-top:12px">
+        <input id="search" placeholder="Search by title..." style="flex:1;padding:8px;border-radius:8px;border:0;background:rgba(255,255,255,0.03);color:var(--muted)" />
+        <select id="sort" style="padding:8px;border-radius:8px;border:0;background:rgba(255,255,255,0.03);color:var(--muted)">
+          <option value="new">Newest</option>
+          <option value="old">Oldest</option>
+        </select>
+      </div>
+
+      <div id="grid" class="grid" aria-live="polite"></div>
+    </section>
+
+    <footer>© 2025 Sri Chaitanya Technical Campus</footer>
+  </div>
+
+  <!-- viewer modal -->
+  <div id="viewerModal" class="hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div class="viewer">
+        <img id="viewerImg" class="viewer-img" src="" alt="Photo" />
+        <div class="viewer-meta">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+            <div>
+              <div id="viewerTitle" style="font-weight:700;font-size:1.05rem"></div>
+              <div id="viewerDate" class="meta" style="font-size:.85rem;color:rgba(207,238,252,0.7)"></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <a id="downloadLink" class="btn ghost" download><span>Download</span></a>
+              <button id="modalDelete" class="btn" style="background:var(--danger);color:#fff;display:none">Delete</button>
+              <button id="modalClose" class="btn">Close</button>
+            </div>
+          </div>
+          <div id="viewerInfo" class="meta"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* -------------------------
+  Behavior:
+  - IndexedDB "photos" store with records:
+    { id (auto), title, blob, uploadedAt }
+  - Admin login: localStorage key 'SCTC_ADMIN' === '1'
+------------------------- */
+
+/* ---------- config ---------- */
+const ADMIN_USERNAME = 'STUDENT ATTENDANCE';
+const ADMIN_PASSWORD = 'Dip@Att'; // change as needed
+
+/* ---------- elements ---------- */
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const adminBadge = document.getElementById('adminBadge');
+const adminPanel = document.getElementById('adminPanel');
+const uploadArea = document.getElementById('uploadArea');
+const filePick = document.getElementById('filePick');
+const uploadBtn = document.getElementById('uploadBtn');
+const photoName = document.getElementById('photoName');
+
+const searchInput = document.getElementById('search');
+const sortSelect = document.getElementById('sort');
+const grid = document.getElementById('grid');
+
+const viewerModal = document.getElementById('viewerModal');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const viewerImg = document.getElementById('viewerImg');
+const viewerTitle = document.getElementById('viewerTitle');
+const viewerDate = document.getElementById('viewerDate');
+const viewerInfo = document.getElementById('viewerInfo');
+const downloadLink = document.getElementById('downloadLink');
+const modalClose = document.getElementById('modalClose');
+const modalDelete = document.getElementById('modalDelete');
+
+/* ---------- IndexedDB helpers ---------- */
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open('sctc_photos_v1',1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains('photos')){
+        const os = db.createObjectStore('photos',{ keyPath:'id', autoIncrement:true });
+        os.createIndex('uploadedAt','uploadedAt',{unique:false});
+        os.createIndex('title','title',{unique:false});
+      }
+    };
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+async function addPhoto(record){
+  const db = await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction('photos','readwrite');
+    const store = tx.objectStore('photos');
+    const r = store.add(record);
+    r.onsuccess = ()=> { db.close(); resolve(r.result); };
+    r.onerror = ()=> { db.close(); reject(r.error); };
+  });
+}
+
+async function getAllPhotos(){
+  const db = await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction('photos','readonly');
+    const store = tx.objectStore('photos');
+    const req = store.getAll();
+    req.onsuccess = ()=> { db.close(); resolve(req.result); };
+    req.onerror = ()=> { db.close(); reject(req.error); };
+  });
+}
+
+async function deletePhoto(id){
+  const db = await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction('photos','readwrite');
+    const store = tx.objectStore('photos');
+    const req = store.delete(id);
+    req.onsuccess = ()=> { db.close(); resolve(); };
+    req.onerror = ()=> { db.close(); reject(req.error); };
+  });
+}
+
+/* ---------- small utilities ---------- */
+function isAdmin(){ return localStorage.getItem('SCTC_ADMIN') === '1'; }
+function setAdmin(on){
+  if(on){
+    localStorage.setItem('SCTC_ADMIN','1');
+    adminBadge.classList.remove('hidden');
+    adminPanel.classList.remove('hidden');
+    logoutBtn.classList.remove('hidden');
+    loginBtn.classList.add('hidden');
+  } else {
+    localStorage.removeItem('SCTC_ADMIN');
+    adminBadge.classList.add('hidden');
+    adminPanel.classList.add('hidden');
+    logoutBtn.classList.add('hidden');
+    loginBtn.classList.remove('hidden');
+  }
+}
+
+/* ---------- authentication (simple prompt) ---------- */
+loginBtn.addEventListener('click', async ()=>{
+  const user = prompt('Admin username:');
+  if(user === null) return;
+  const pass = prompt('Password:');
+  if(pass === null) return;
+  if(user === ADMIN_USERNAME && pass === ADMIN_PASSWORD){
+    setAdmin(true);
+    alert('Admin logged in');
+    render();
+  } else {
+    alert('Invalid credentials');
+  }
+});
+logoutBtn.addEventListener('click', ()=>{ setAdmin(false); render(); });
+
+/* restore admin state from previous session (optional) */
+if(localStorage.getItem('SCTC_ADMIN') === '1') setAdmin(true);
+
+/* ---------- upload handling (admin only) ---------- */
+let stagedFiles = []; // File objects
+
+uploadArea.addEventListener('dragover', (e)=>{ e.preventDefault(); uploadArea.classList.add('dragover'); });
+uploadArea.addEventListener('dragleave', ()=> uploadArea.classList.remove('dragover'));
+uploadArea.addEventListener('drop', (e)=>{ 
+  e.preventDefault(); uploadArea.classList.remove('dragover');
+  if(!isAdmin()){ alert('Admin only'); return; }
+  const files = Array.from(e.dataTransfer.files || []);
+  handleStaged(files);
+});
+
+filePick.addEventListener('change', ()=> {
+  if(!isAdmin()){ alert('Admin only'); filePick.value=''; return; }
+  const files = Array.from(filePick.files || []);
+  handleStaged(files);
+});
+
+function handleStaged(files){
+  for(const f of files){
+    if(!f.type.startsWith('image/')) { alert(`Skipped: ${f.name} (not an image)`); continue; }
+    stagedFiles.push(f);
+  }
+  if(stagedFiles.length) showStagedPreview();
+}
+
+/* upload button */
+uploadBtn.addEventListener('click', async ()=>{
+  if(!isAdmin()){ alert('Admin only'); return; }
+  if(stagedFiles.length === 0){ alert('No files selected'); return; }
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = 'Uploading...';
+
+  try{
+    for(const f of stagedFiles){
+      const title = photoName.value.trim() || f.name;
+      // store blob directly
+      const rec = { title, blob: f, uploadedAt: Date.now() };
+      await addPhoto(rec);
+    }
+    stagedFiles = [];
+    photoName.value = '';
+    filePick.value = '';
+    alert('Upload complete');
+    await render();
+  }catch(err){
+    console.error(err);
+    alert('Upload error: ' + err.message);
+  }finally{
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = 'Upload';
+  }
+});
+
+/* staged preview (small) */
+function showStagedPreview(){
+  // a simple alertish preview; you can improve UI as needed
+  const names = stagedFiles.map(f=>f.name).join('\n');
+  if(!confirm('Files staged:\n' + names + '\n\nContinue to upload?')) {
+    // keep staged but allow cancel by clear
+  }
+}
+
+/* ---------- gallery rendering ---------- */
+async function render(){
+  grid.innerHTML = '';
+  let photos = await getAllPhotos();
+  const q = (searchInput.value || '').toLowerCase();
+  const sort = sortSelect.value;
+
+  // filter
+  photos = photos.filter(p => !q || (p.title && p.title.toLowerCase().includes(q)));
+
+  // sort
+  photos.sort((a,b)=> sort === 'new' ? b.uploadedAt - a.uploadedAt : a.uploadedAt - b.uploadedAt);
+
+  if(photos.length === 0){
+    const e = document.createElement('div');
+    e.textContent = 'No photos yet.';
+    e.style.gridColumn = '1/-1';
+    e.style.opacity = '.8';
+    grid.appendChild(e);
+    return;
+  }
+
+  for(const p of photos){
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    if(isAdmin()) tile.classList.add('admin');
+
+    // create thumbnail URL from blob
+    const url = URL.createObjectURL(p.blob);
+
+    const img = document.createElement('img');
+    img.className = 'thumb';
+    img.src = url;
+    img.alt = p.title || 'photo';
+    img.loading = 'lazy';
+    img.addEventListener('click', ()=> openViewer(p));
+
+    const title = document.createElement('div');
+    title.className = 'title';
+    title.textContent = p.title || '(no title)';
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const d = new Date(p.uploadedAt);
+    meta.textContent = d.toLocaleString();
+
+    // delete badge (visible if admin)
+    const del = document.createElement('button');
+    del.className = 'delete-badge';
+    del.textContent = 'Delete';
+    del.addEventListener('click', async (ev)=>{
+      ev.stopPropagation();
+      if(!isAdmin()){ alert('Admin only'); return; }
+      if(confirm('Delete this photo?')) {
+        await deletePhoto(p.id);
+        render();
+      }
+    });
+
+    tile.appendChild(del);
+    tile.appendChild(img);
+    tile.appendChild(title);
+    tile.appendChild(meta);
+    grid.appendChild(tile);
+
+    // revoke object URL after image loads to free memory (but keep until needed by viewer)
+    img.addEventListener('load', ()=> URL.revokeObjectURL(url));
+  }
+}
+
+/* ---------- viewer modal ---------- */
+let currentViewed = null;
+function openViewer(photoRecord){
+  currentViewed = photoRecord;
+  // create object URL again for viewer
+  const url = URL.createObjectURL(photoRecord.blob);
+  viewerImg.src = url;
+  viewerTitle.textContent = photoRecord.title || '(no title)';
+  viewerDate.textContent = 'Uploaded: ' + new Date(photoRecord.uploadedAt).toLocaleString();
+  viewerInfo.textContent = `File size: ${(photoRecord.blob.size/1024/1024).toFixed(2)} MB`;
+
+  // download link: create object URL and set filename
+  downloadLink.href = url;
+  downloadLink.download = (photoRecord.title || 'photo').replace(/\s+/g,'_') + '.jpg';
+
+  // show delete only to admin
+  modalDelete.style.display = isAdmin() ? 'inline-block' : 'none';
+
+  // show modal
+  viewerModal.classList.remove('hidden');
+  viewerModal.style.display = 'block';
+
+  // clean up URL when modal closes (revoke on close)
+  viewerImg.dataset._url = url;
+}
+
+modalClose.addEventListener('click', closeViewer);
+modalBackdrop.addEventListener('click', (e)=> { if(e.target === modalBackdrop) closeViewer(); });
+
+function closeViewer(){
+  viewerModal.classList.add('hidden');
+  viewerModal.style.display = 'none';
+  // revoke object URL
+  const url = viewerImg.dataset._url;
+  if(url) URL.revokeObjectURL(url);
+  viewerImg.src = '';
+  currentViewed = null;
+}
+
+modalDelete.addEventListener('click', async ()=>{
+  if(!isAdmin()) { alert('Admin only'); return; }
+  if(!currentViewed) return;
+  if(confirm('Delete this photo?')){
+    await deletePhoto(currentViewed.id);
+    closeViewer();
+    render();
+  }
+});
+
+/* ---------- wire search & sort ---------- */
+searchInput.addEventListener('input', debounce(()=> render(), 250));
+sortSelect.addEventListener('change', ()=> render());
+
+/* simple debounce */
+function debounce(fn, ms=200){
+  let t;
+  return (...args)=>{ clearTimeout(t); t = setTimeout(()=> fn(...args), ms); }
+}
+
+/* initial render */
+render();
+
+/* close viewer on Escape */
+document.addEventListener('keydown', (e)=> { if(e.key === 'Escape') { if(!viewerModal.classList.contains('hidden')) closeViewer(); } });
+
+/* ---------- helpful: allow admin toggling via dev prompt (optional)
+   If you prefer a modal for login, replace with prompts or a proper modal; kept simple here.
+*/
+(function attachAdminQuickToggle(){
+  // allow double-click on adminBadge to show/unset admin (dev helper) - optional
+  adminBadge.addEventListener('dblclick', ()=> {
+    if(isAdmin()){
+      if(confirm('Logout admin?')) setAdmin(false);
+    } else {
+      const u = prompt('Admin username:');
+      if(u === null) return;
+      const p = prompt('Admin password:');
+      if(p === null) return;
+      if(u === ADMIN_USERNAME && p === ADMIN_PASSWORD){
+        setAdmin(true);
+        alert('Admin enabled');
+        render();
+      } else alert('Invalid credentials');
+    }
+  });
+})();
+
+</script>
+</body>
+</html>
